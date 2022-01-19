@@ -6,17 +6,37 @@ import { BigNumber } from "ethers"
 describe ("Test smart contract Agriculture.sol", function() {
     
     const AgricultureData = async () => {
-        const [owner, user1, user2, user3, user4] = await ethers.getSigners();
+
+        const nameERC20: string  = "USDT" 
+        const maxSupplyERC20 : BigNumber = ethers.utils.parseEther("1000000")
+        const symbolERC20 : string = "USDT" 
+
+        const [owner, owenrERC20, user1, user2, user3, user4] = await ethers.getSigners();
+
+        const ERC20 = await ethers.getContractFactory("ERC20")
+        
+        const ERC20Deploy = await ERC20.connect(owenrERC20).deploy(
+            nameERC20,
+            symbolERC20,
+            maxSupplyERC20
+        )
+
+
         const Agriculture = await ethers.getContractFactory("Agriculture");
         const AgricultureDeploy = await Agriculture.connect(owner).deploy();
 
 
         return {
             owner,
+            owenrERC20,
             user1, user2, user3, user4,
+            ERC20Deploy,
             AgricultureDeploy            
         }
     }
+
+
+    
 
     describe("Test Famer", function () {
 
