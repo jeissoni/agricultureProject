@@ -11,9 +11,11 @@ contract Agriculture {
 
     IERC20 public USD;
 
-    uint256 private currentIdHarvest = 0;
-    uint256 private currentIdInvestment = 0;
+    uint256 private currentIdHarvest;
+    uint256 private currentIdInvestment;
 
+    // expresado en ETH => % * 1 ether / 100 
+    uint256 private feeTransaction ;
 
     enum stateHarvest {
         CREATED,
@@ -40,7 +42,7 @@ contract Agriculture {
 
     struct Investment {
         uint256 idInvestment;
-        uint256 IdHarvest;
+        uint256 idHarvest;
         uint256 treeNumber;
         uint256 valueInvestment;
         uint256 DateInvestment;
@@ -57,6 +59,9 @@ contract Agriculture {
     mapping(address => bool) public usersTeam;
 
     mapping(address => bool) public userFarmer;
+
+    mapping(uint256 => uint256) public treesSoldHarvest;
+
 
     event AddUserFarmer(address team, address farmer, uint256 date);
 
@@ -96,6 +101,12 @@ contract Agriculture {
         uint256 date
     );
 
+    event SetFeeTransaction(
+        address team,
+        uint256 fee,
+        uint256 date
+    );
+
 
 
     modifier onlyTeam() {
@@ -106,11 +117,43 @@ contract Agriculture {
         _;
     }
 
-      
+    //aun hay arboles por vender?
+    function treesToSell(uint256 _idHarvest) external view returns (bool){
+        bool isTreesToSell = false ;
+        if (treesSoldHarvest[_idHarvest] < IdDetailHarvest[_idHarvest].treeNumber){
+            isTreesToSell = true;
+        }
+        return isTreesToSell;
+    }
 
     //Esta una cosecha pausada?
     function isPaused(uint256 _idHarvest) public view returns (bool){
         return  IdDetailHarvest[_idHarvest].pause;
+    }
+
+    // function isHarverstExists(uint256 _idHarvest) public view returns (bool){
+    //     bool isExist = false;
+    //     if (IdDetailHarvest[_idHarvest].idHarvest == _idHarvest){
+    //         isExist = true;
+    //     }
+    //     return isExist;
+    // }
+
+    //recibier en expresado en ETH
+    function setFeeTransaction(uint256 _fee) private onlyTeam returns(bool){
+        feeTransaction = _fee;
+        emit SetFeeTransaction(
+            msg.sender,
+            _fee,
+            block.timestamp
+        );
+        return true;
+    }
+
+    function getAmountAndFee(uint256 _amount) private view returns(uint256){
+        uint256 currentTransactionFee = (_amount * feeTransaction) / 1 ether;
+        uint256 amoundAndPorcentage = _amount + currentTransactionFee;
+        return amoundAndPorcentage;
     }
 
     //test ok
@@ -145,8 +188,13 @@ contract Agriculture {
 //*************************************************************************/
 //                      Funciones de plantaciones
 //*************************************************************************/
-    function increaseIdHarvest() private onlyTeam returns (bool) {
+    function increaseIdHarvest() private returns (bool) {
         currentIdHarvest += 1;
+        return true;
+    }
+
+    function increaseIdInvestment() private returns (bool){
+        currentIdInvestment +=1;
         return true;
     }
 
@@ -261,6 +309,8 @@ contract Agriculture {
             IdDetailHarvest[_idHarvest].state == stateHarvest.VALIDATED,
             "The state from harvest is not VALIDATED"
         );
+
+
         IdDetailHarvest[_idHarvest].state == stateHarvest.RECEIVE_FUNDS;
         emit ChangeStateHarvest(
             msg.sender,
@@ -351,7 +401,51 @@ contract Agriculture {
 //********************************************************************** */
                         //funciones de usuarios
 //********************************************************************** */
+function investmentUser(
+    uint256 _idHarvest,
+    uint256 _treeNumber,
+    uint256 _amount) 
+    public returns(bool){
+    
+    //existe el cultivo ?
+    require(
+        IdDetailHarvest[_idHarvest].idHarvest == _idHarvest,
+        "The Harves no exists"
+        );
+    
+    require(
+        isPaused(_idHarvest) == false,
+        "The harvest is Pause"
+        );
 
+    require(
+        IdDetailHarvest[currentIdHarvest].state == stateHarvest.RECEIVE_FUNDS,
+        "The state from harvest is not RECEIVE_FUNDS"
+        );
+
+    // tiene fondos suficientes?
+    require(
+        USD.balanceOf(msg.sender)>= _amount,
+        "Do not have the necessary funds of USD"
+        );
+
+
+    uint256 amountAndfee = getAmountAndFee(_amount);   
+    require(
+        IdDetailHarvest[_idHarvest].priceTree * _treeNumber >= amountAndfee, 
+        "is not sending the value to execute the transaction"
+        );
+
+    USD.approve(address(this), _amount);
+    
+    
+
+
+    
+
+
+        
+}
 
 //********************************************************************** */
 //********************************************************************** */
@@ -363,6 +457,7 @@ contract Agriculture {
 
     constructor(address usd) {
         usersTeam[msg.sender] = true;
+        
         USD = IERC20(usd);
     }
 
