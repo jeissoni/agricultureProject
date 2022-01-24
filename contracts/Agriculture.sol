@@ -24,7 +24,7 @@ contract Agriculture {
         FINALIZED
     }
 
-    struct DetailHarvest {
+    struct HarvestStruct {
         uint256 idHarvest;
         string nameHarves;
         uint256 treeNumber;
@@ -33,52 +33,63 @@ contract Agriculture {
         uint256 salePrice;
         //precio por arbol
         uint256 priceTree;
-        uint256 depositSaleHarvest;
         bool pause;
         stateHarvest state;
-        uint256 idInvestment;
+
         address Farmer;
+        //idInversion => idPlantacion 
+        mapping(uint256 => uint256) investmentHarvest;
+        uint256[] listInvestment;
     }
 
-    struct Investment {
+    //idPlantacion => detallePlantacion
+    mapping(uint256 => HarvestStruct) public IdDetailHarvest;
+    uint256[] public listHarvest;
+
+    // agricultor(1) => cultivo(*) 
+    mapping(address => uint256[]) public FamerHarvest;
+
+
+
+
+    struct InvestmentHarvest {
         uint256 idInvestment;
         uint256 idHarvest;
         uint256 treeNumber;
         uint256 valueInvestment;
         uint256 dateInvestment;
         address user;
-    }
+    }    
+    //idInversion => detalleInversion
+    mapping(uint256 => InvestmentHarvest) public IdInvestment;
+    uint256[] public listInvestment;
+
+    mapping(address => uint256[]) public UserInvestment;  
+
+
 
 
     struct InvestmentTotalHarvest{
         uint256 treeSold;
         uint256 totalAmount;
     }
+    mapping(uint256 => InvestmentTotalHarvest) public HarvestTotalInvestment;
+
+
+
 
     mapping(address => bool) public usersTeam;
 
     mapping(address => bool) public userFarmer;
 
-    mapping(address => uint256[]) public FamerHarvest;
-
-    mapping(address => uint256[]) public UserInvestment;  
-
-
-    //idPlantacion => detallePlantacion
-    mapping(uint256 => DetailHarvest) public IdDetailHarvest;
-
-    //idInversion => detalleInversion
-    mapping(uint256 => Investment) public IdInvestment;
-
-    //plantacion => detalleInversion
-    mapping(uint256 => InvestmentTotalHarvest) public HarvestInvestment;
-
    
-    //cultivo => usuario => inversion 
-    mapping(uint256 => mapping(address => uint256)) public investmentUserHarvest;
+    //plantacion => detalleInversion (perfecto)  
 
 
 
+    //********************************************************************************** */
+    //                                 EVENT
+    //********************************************************************************** */
     event AddUserFarmer(address team, address farmer, uint256 date);
 
     event AddUserTeam(address team, address newTeam, uint256 date);
@@ -111,6 +122,11 @@ contract Agriculture {
 
     event SetFeeTransaction(address team, uint256 fee, uint256 date);
 
+    //-----------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------
+
+
+
     modifier onlyTeam() {
         require(
             usersTeam[msg.sender] == true,
@@ -133,7 +149,7 @@ contract Agriculture {
 
 
     function getIdInvesmentUserHarvest(uint256 _idHarvest) private view returns (uint256){
-        return investmentUserHarvest[_idHarvest][msg.sender];
+        //return HarvestTotalInvestment[_idHarvest][msg.sender];
 
     }
 
@@ -262,7 +278,7 @@ contract Agriculture {
         require(isPaused(_idHarvest) == false, "The harvest is Pause");
 
 
-        HarvestInvestment[_idHarvest].treeSold += _trees;
+        HarvestTotalInvestment[_idHarvest].treeSold += _trees;
 
         return true;
     }
@@ -277,8 +293,7 @@ contract Agriculture {
         uint256 _harvesDays,
         bool _renewal,
         uint256 _salePrice,
-        uint256 _priceTree,
-        uint256 _depositSaleHArvest
+        uint256 _priceTree
     ) private onlyTeam returns (bool) {
         
         //inicia desde 1
@@ -290,9 +305,7 @@ contract Agriculture {
         IdDetailHarvest[currentIdHarvest].harvestDays = _harvesDays;
         IdDetailHarvest[currentIdHarvest].renewal = _renewal;
         IdDetailHarvest[currentIdHarvest].salePrice = _salePrice;
-        IdDetailHarvest[currentIdHarvest].priceTree = _priceTree;
-        IdDetailHarvest[currentIdHarvest]
-            .depositSaleHarvest = _depositSaleHArvest;
+        IdDetailHarvest[currentIdHarvest].priceTree = _priceTree;    
         IdDetailHarvest[currentIdHarvest].state = stateHarvest.CREATED;
         IdDetailHarvest[currentIdHarvest].pause = false;
 
@@ -434,12 +447,29 @@ contract Agriculture {
         return true;
     }
 
-    //********************************************************************** */
-    //********************************************************************** */
+    //--------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------
 
-    //********************************************************************** */
-    //funciones de usuarios
-    //********************************************************************** */
+    //******************************************************************************* */
+    //                          Funicones Inversiones
+    //******************************************************************************* */
+    
+    //hay arboles por vender?
+    function isTreesToSell(uint256 _idHarvest) private view returns(bool){
+        bool toSell = false;
+        if (HarvestTotalInvestment[_idHarvest].treeSold <=
+            IdDetailHarvest[_idHarvest].treeNumber){
+                toSell = true;
+        }
+        return toSell;
+    }
+    //-------------------------------------------------------------------------------- */
+    //-------------------------------------------------------------------------------- */
+
+
+    //******************************************************************************** */
+    //                          funciones de usuarios
+    //******************************************************************************** */
     function invesmentUserHarvest(
         uint256 _idHarvest,
         uint256 _treeNumber,
@@ -453,9 +483,7 @@ contract Agriculture {
 
         require(isPaused(_idHarvest) == false, "The harvest is Pause");
 
-        require(
-            HarvestInvestment[_idHarvest].treeSold <
-            IdDetailHarvest[_idHarvest].treeNumber,
+        require(isTreesToSell(_idHarvest),
             "There are no trees available to buy"
         );
 
@@ -471,12 +499,11 @@ contract Agriculture {
             "Do not have the necessary funds of USD"
         );
 
-        //inicia desde 1 el contador
-
         uint256 valueOfTrees = IdDetailHarvest[_idHarvest].priceTree *
             _treeNumber;
 
         uint256 fee = getFeeTransactionFee(valueOfTrees);
+
         require(
             IdDetailHarvest[_idHarvest].priceTree * _treeNumber >=
                 (_amount + fee),
@@ -486,45 +513,42 @@ contract Agriculture {
         USD.transfer(address(this), _amount);
 
         totalFee += fee;
+        
 
-        uint256 idInvesmentUserHarvest = getIdInvesmentUserHarvest(_idHarvest);
-
-        if (idInvesmentUserHarvest == 0){        
-            increaseIdInvestment();
-            IdInvestment[currentIdInvestment].idInvestment = currentIdInvestment;
-            IdInvestment[currentIdInvestment].idHarvest = _idHarvest;
-            IdInvestment[currentIdInvestment].treeNumber = _treeNumber;
-            IdInvestment[currentIdInvestment].valueInvestment = valueOfTrees;
-            IdInvestment[currentIdInvestment].dateInvestment = block.timestamp;
-            addUserInvestment(msg.sender, currentIdInvestment);
-
-            
-        }else{
-            IdInvestment[currentIdInvestment].treeNumber += _treeNumber;
-            IdInvestment[currentIdInvestment].valueInvestment += valueOfTrees;
-            IdInvestment[currentIdInvestment].dateInvestment = block.timestamp;
-        }
-       
-
+        //Crear la inversion "Usuario"
+        IdInvestment[currentIdInvestment].idInvestment = currentIdInvestment;
         IdInvestment[currentIdInvestment].idHarvest = _idHarvest;
-        IdInvestment[currentIdInvestment].treeNumber += _treeNumber;
-        IdInvestment[currentIdInvestment].valueInvestment += valueOfTrees;
+        IdInvestment[currentIdInvestment].treeNumber = _treeNumber;
+        IdInvestment[currentIdInvestment].valueInvestment = valueOfTrees;
         IdInvestment[currentIdInvestment].dateInvestment = block.timestamp;
+        IdInvestment[currentIdInvestment].user = msg.sender;
+
+        listInvestment.push(currentIdInvestment);
+
+        UserInvestment[msg.sender].push(currentIdInvestment);
+   
+
+        //Actualizacion registro plantacion
+        IdDetailHarvest[_idHarvest].investmentHarvest[currentIdInvestment] = _idHarvest;
+        IdDetailHarvest[_idHarvest].listInvestment.push(currentIdInvestment);
 
 
-        //suma a la inversion total de la plantacion (sacar a funcion)
-        HarvestInvestment[_idHarvest].treeSold += _treeNumber;
-        HarvestInvestment[_idHarvest].totalAmount += _amount - fee;
+        //registro totales "plantacion" 
+        HarvestTotalInvestment[_idHarvest].treeSold += _treeNumber;
+        HarvestTotalInvestment[_idHarvest].totalAmount += valueOfTrees;
 
-        addTreeSoldHarvest(_idHarvest, _treeNumber);
+
+        increaseIdInvestment();
+
+        //addTreeSoldHarvest(_idHarvest, _treeNumber);
 
         return true;
     }
+    //-------------------------------------------------------------------------------- */
+    //-------------------------------------------------------------------------------- */
 
+  
 
-
-    //---------------------------------------------------------------------- */
-    //---------------------------------------------------------------------- */
 
     //funciones de equipo
 
@@ -535,9 +559,9 @@ contract Agriculture {
     //---------------------------------------------------------------------- */
     //---------------------------------------------------------------------- */
 
-    constructor(address usd) {
+    constructor(address usd)  {
         usersTeam[msg.sender] = true;
 
-        USD = IERC20(usd);
+        USD = IERC20(usd);        
     }
 }
