@@ -8,22 +8,25 @@ describe ("Test smart contract Agriculture.sol", function() {
     const AgricultureData = async () => {
 
         const nameERC20: string  = "USDT" 
-        const maxSupplyERC20 : BigNumber = ethers.utils.parseEther("1000000")
-        const symbolERC20 : string = "USDT" 
+        const symbolERC20 : string = "USDT"
+        const decimals = 18
+        const totalValue = ethers.utils.parseEther("100")
+ 
 
         const [owner, owenrERC20, user1, user2, user3, user4] = await ethers.getSigners();
 
         const ERC20 = await ethers.getContractFactory("ERC20")
         
         const ERC20Deploy = await ERC20.connect(owenrERC20).deploy(
-            nameERC20,
-            symbolERC20,
-            maxSupplyERC20
-        )
+             nameERC20,
+             symbolERC20,
+             decimals, 
+             totalValue
+         )
 
 
         const Agriculture = await ethers.getContractFactory("Agriculture");
-        const AgricultureDeploy = await Agriculture.connect(owner).deploy();
+        const AgricultureDeploy = await Agriculture.connect(owner).deploy(ERC20Deploy.address);
 
 
         return {
@@ -82,10 +85,29 @@ describe ("Test smart contract Agriculture.sol", function() {
             await expect(AgricultureDeploy.connect(user1).addUserFarmer(user1.address))
             .to.be.revertedWith('Exclusive function of the team');
         })
+    })
 
+    describe("Test User", function(){
+
+        it("cannot invest in a harvers that is not created", async () =>{
+            const {owner, user1, AgricultureDeploy, ERC20Deploy} = await AgricultureData()
+
+            const idHarvest : number = 1
+            const treeNumber : number = 100
+            const amount = ethers.utils.parseEther("1")
+
+
+
+            await expect(AgricultureDeploy.connect(user1).invesmentUserHarvest(
+                idHarvest, treeNumber, amount
+            )).to.be.revertedWith("The Harves no exists")
+
+        })
+
+        it("cannot invest in a harvers that is pause", async () =>{
+            
+        })
         
-
-
     })
 
 })
