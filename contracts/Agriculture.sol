@@ -36,7 +36,7 @@ contract Agriculture {
         bool pause;
         stateHarvest state;
 
-        address Farmer;
+        address farmer;
         //idInversion => idPlantacion 
         mapping(uint256 => uint256) investmentHarvest;
         uint256[] listInvestment;
@@ -158,13 +158,9 @@ contract Agriculture {
         return IdDetailHarvest[_idHarvest].pause;
     }
 
-    // function isHarverstExists(uint256 _idHarvest) public view returns (bool){
-    //     bool isExist = false;
-    //     if (IdDetailHarvest[_idHarvest].idHarvest == _idHarvest){
-    //         isExist = true;
-    //     }
-    //     return isExist;
-    // }
+     
+     
+
 
     //recibier en expresado en ETH
     function setFeeTransaction(uint256 _fee) private onlyTeam returns (bool) {
@@ -214,6 +210,11 @@ contract Agriculture {
     //*************************************************************************/
     //                      Funciones de plantaciones
     //*************************************************************************/
+    function getCurrentIdHarvest() external view returns(uint256){
+        return currentIdHarvest;
+    }
+
+
     function increaseIdHarvest() private returns (bool) {
         currentIdHarvest += 1;
         return true;
@@ -286,6 +287,7 @@ contract Agriculture {
     
     // funcions faltaria hacer validaciones
     // crear un cultivo
+    // cambiar la visibilidad 
     function crearteNewHarvest(
         address _farmer,
         string memory _nameHArve,
@@ -294,13 +296,14 @@ contract Agriculture {
         bool _renewal,
         uint256 _salePrice,
         uint256 _priceTree
-    ) private onlyTeam returns (bool) {
+    ) public onlyTeam returns (bool) {
         
         //inicia desde 1
         increaseIdHarvest();
         
         IdDetailHarvest[currentIdHarvest].idHarvest = currentIdHarvest;
         IdDetailHarvest[currentIdHarvest].nameHarves = _nameHArve;
+        IdDetailHarvest[currentIdHarvest].farmer = _farmer;
         IdDetailHarvest[currentIdHarvest].treeNumber = _treeNumber;
         IdDetailHarvest[currentIdHarvest].harvestDays = _harvesDays;
         IdDetailHarvest[currentIdHarvest].renewal = _renewal;
@@ -323,7 +326,7 @@ contract Agriculture {
     //                     Funciones de cambio de estado
     //********************************************************************* */
     function changeStateHarvestToAnalysis(uint256 _idHarvest)
-        private
+        public
         onlyTeam
         returns (bool)
     {
@@ -333,7 +336,9 @@ contract Agriculture {
             IdDetailHarvest[_idHarvest].state == stateHarvest.CREATED,
             "The state from harvest is not CREATED"
         );
-        IdDetailHarvest[_idHarvest].state == stateHarvest.ANALYSIS;
+        
+        IdDetailHarvest[_idHarvest].state = stateHarvest.ANALYSIS;        
+
         emit ChangeStateHarvest(
             msg.sender,
             _idHarvest,
@@ -344,7 +349,7 @@ contract Agriculture {
     }
 
     function changeStateHarvestToValidated(uint256 _idHarvest)
-        private
+        public
         onlyTeam
         returns (bool)
     {
@@ -354,7 +359,8 @@ contract Agriculture {
             IdDetailHarvest[_idHarvest].state == stateHarvest.ANALYSIS,
             "The state from harvest is not ANALYSIS"
         );
-        IdDetailHarvest[_idHarvest].state == stateHarvest.ANALYSIS;
+        IdDetailHarvest[_idHarvest].state = stateHarvest.VALIDATED;        
+
         emit ChangeStateHarvest(
             msg.sender,
             _idHarvest,
@@ -365,7 +371,7 @@ contract Agriculture {
     }
 
     function changeStateHarvestToReceiveFunds(uint256 _idHarvest)
-        private
+        public
         onlyTeam
         returns (bool)
     {
@@ -376,7 +382,8 @@ contract Agriculture {
             "The state from harvest is not VALIDATED"
         );
 
-        IdDetailHarvest[_idHarvest].state == stateHarvest.RECEIVE_FUNDS;
+        IdDetailHarvest[_idHarvest].state = stateHarvest.RECEIVE_FUNDS;
+
         emit ChangeStateHarvest(
             msg.sender,
             _idHarvest,
@@ -397,7 +404,7 @@ contract Agriculture {
             IdDetailHarvest[_idHarvest].state == stateHarvest.RECEIVE_FUNDS,
             "The state from harvest is not RECEIVE_FUNDS"
         );
-        IdDetailHarvest[_idHarvest].state == stateHarvest.EXECUTION;
+        IdDetailHarvest[_idHarvest].state = stateHarvest.EXECUTION;
         emit ChangeStateHarvest(
             msg.sender,
             _idHarvest,
@@ -418,7 +425,7 @@ contract Agriculture {
             IdDetailHarvest[_idHarvest].state == stateHarvest.EXECUTION,
             "The state from harvest is not EXECUTION"
         );
-        IdDetailHarvest[_idHarvest].state == stateHarvest.FINALIZED;
+        IdDetailHarvest[_idHarvest].state = stateHarvest.FINALIZED;
         emit ChangeStateHarvest(
             msg.sender,
             _idHarvest,
@@ -428,7 +435,8 @@ contract Agriculture {
         return true;
     }
 
-    function pauseHarvest(uint256 _idHarvest) private onlyTeam returns (bool) {
+    //cambiar la visibilidad ??
+    function pauseHarvest(uint256 _idHarvest) external onlyTeam returns (bool) {
         require(isPaused(_idHarvest) == false, "The harvest is Pause");
         IdDetailHarvest[currentIdHarvest].pause = true;
 
@@ -507,13 +515,14 @@ contract Agriculture {
         require(
             IdDetailHarvest[_idHarvest].priceTree * _treeNumber >=
                 (_amount + fee),
-            "is not sending the value to execute the transaction"
+            "Is not sending the value to execute the transaction"
         );
 
         USD.transfer(address(this), _amount);
 
         totalFee += fee;
         
+        increaseIdInvestment();
 
         //Crear la inversion "Usuario"
         IdInvestment[currentIdInvestment].idInvestment = currentIdInvestment;
@@ -538,7 +547,6 @@ contract Agriculture {
         HarvestTotalInvestment[_idHarvest].totalAmount += valueOfTrees;
 
 
-        increaseIdInvestment();
 
         //addTreeSoldHarvest(_idHarvest, _treeNumber);
 
