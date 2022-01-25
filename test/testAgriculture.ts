@@ -90,13 +90,11 @@ describe ("Test smart contract Agriculture.sol", function() {
     describe("Test User", function(){
 
         it("cannot invest in a harvers that is not created", async () =>{
-            const {owner, user1, AgricultureDeploy, ERC20Deploy} = await AgricultureData()
+            const {user1, AgricultureDeploy} = await AgricultureData()
 
             const idHarvest : number = 1
             const treeNumber : number = 100
             const amount = ethers.utils.parseEther("1")
-
-
 
             await expect(AgricultureDeploy.connect(user1).invesmentUserHarvest(
                 idHarvest, treeNumber, amount
@@ -105,7 +103,89 @@ describe ("Test smart contract Agriculture.sol", function() {
         })
 
         it("cannot invest in a harvers that is pause", async () =>{
+            const {owner, user1, AgricultureDeploy} = await AgricultureData()
+
+            //agregar agricultor
+            await AgricultureDeploy.connect(owner).addUserFarmer(user1.address)
+            //crear la cosecha de prueba
+            await AgricultureDeploy.connect(owner).crearteNewHarvest(
+                user1.address,
+                "Prueba",
+                10,
+                10,
+                false,
+                10,
+                10
+            )
+            //saber el id de la plantacion 
+            const currentIdHarvest : BigNumber = await AgricultureDeploy.getCurrentIdHarvest();
+
+            //pausar la plantacion 
+            await AgricultureDeploy.connect(owner).pauseHarvest(currentIdHarvest)
+
+            const idHarvest : number = 1
+            const treeNumber : number = 100
+            const amount = ethers.utils.parseEther("1")
+
+            await expect(AgricultureDeploy.connect(user1).invesmentUserHarvest(
+                idHarvest, treeNumber, amount
+            )).to.be.revertedWith("The harvest is Pause")
             
+        })
+
+        it("do not invest if the harvers is not in RECEIVE_FUNDS", async () =>{
+            const {owner, user1, AgricultureDeploy} = await AgricultureData()
+            //agregar agricultor
+            await AgricultureDeploy.connect(owner).addUserFarmer(user1.address)
+            //crear la cosecha de prueba
+            await AgricultureDeploy.connect(owner).crearteNewHarvest(
+                user1.address,
+                "Prueba",
+                10,
+                10,
+                false,
+                10,
+                10
+            )          
+
+            const idHarvest : number = 1
+            const treeNumber : number = 100
+            const amount = ethers.utils.parseEther("1")
+
+            await expect(AgricultureDeploy.connect(user1).invesmentUserHarvest(
+                idHarvest, treeNumber, amount
+            )).to.be.revertedWith("The state from harvest is not RECEIVE_FUNDS")
+        })
+
+        it("verify that you have the necessary funds", async () =>{
+            const {owner, user1, AgricultureDeploy} = await AgricultureData()
+             //agregar agricultor
+            await AgricultureDeploy.connect(owner).addUserFarmer(user1.address)
+             //crear la cosecha de prueba
+            await AgricultureDeploy.connect(owner).crearteNewHarvest(
+                user1.address,
+                "Prueba",
+                10,
+                10,
+                false,
+                10,
+                10
+            ) 
+
+            const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
+
+            await AgricultureDeploy.connect(owner).changeStateHarvestToAnalysis(currrentIdHarvest)            
+            await AgricultureDeploy.connect(owner).changeStateHarvestToValidated(currrentIdHarvest)
+            await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(currrentIdHarvest)
+
+            const idHarvest : number = 1
+            const treeNumber : number = 100
+            const amount = ethers.utils.parseEther("1")
+
+            await expect(AgricultureDeploy.connect(user1).invesmentUserHarvest(
+                idHarvest, treeNumber, amount
+            )).to.be.revertedWith("Do not have the necessary funds of USD")
+
         })
         
     })
