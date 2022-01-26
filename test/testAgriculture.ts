@@ -3,6 +3,7 @@ import { expect } from "chai"
 import { BigNumber } from "ethers"
 
 
+
 describe ("Test smart contract Agriculture.sol", function() {
     
     const AgricultureData = async () => {
@@ -187,6 +188,60 @@ describe ("Test smart contract Agriculture.sol", function() {
             )).to.be.revertedWith("Do not have the necessary funds of USD")
 
         })
+
+        it("Create investment",async () => {
+            const {owner, user1, AgricultureDeploy, ERC20Deploy, owenrERC20 } = await AgricultureData()
+
+            //agregar agricultor
+            await AgricultureDeploy.connect(owner).addUserFarmer(user1.address)
+             //crear la cosecha de prueba
+            await AgricultureDeploy.connect(owner).crearteNewHarvest(
+                user1.address, //farmer
+                "Prueba", // nameHArvest
+                10, //treeNumber
+                10, //harvestDay
+                false, //rebewal
+                10, //salePrice 
+                ethers.utils.parseEther("1") //priceTree
+            ) 
+
+            const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
+
+            await AgricultureDeploy.connect(owner).changeStateHarvestToAnalysis(currrentIdHarvest)            
+            await AgricultureDeploy.connect(owner).changeStateHarvestToValidated(currrentIdHarvest)
+            await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(currrentIdHarvest)
+
+            
+            const amount : BigNumber = ethers.utils.parseEther("2")
+            await ERC20Deploy.connect(owenrERC20).transfer(
+                user1.address,
+                amount.mul(2)                
+            )
+
+            await ERC20Deploy.connect(user1).approve(
+                AgricultureDeploy.address, 
+                amount
+            )
+            
+            await AgricultureDeploy.connect(user1).invesmentUserHarvest(
+                currrentIdHarvest,
+                1,
+                amount
+            )         
+
+            const currentInvestments : BigNumber = await AgricultureDeploy.getCurrentIdInvestment()
+
+            const listInvest = await AgricultureDeploy.IdInvestment(currentInvestments)
+
+            const listInvestUser = await AgricultureDeploy.UserInvestment(user1.address, 0)
+
+            console.log(listInvestUser)
+
+            
+            
+        })
+
+
         
     })
 
