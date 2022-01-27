@@ -42,15 +42,14 @@ contract Agriculture {
         uint256[] listInvestment;
     }
 
+
+
     //idPlantacion => detallePlantacion
     mapping(uint256 => HarvestStruct) public IdDetailHarvest;
     uint256[] public listHarvest;
 
     // agricultor(1) => cultivo(*) 
     mapping(address => uint256[]) public FamerHarvest;
-
-
-
 
     struct InvestmentHarvest {
         uint256 idInvestment;
@@ -61,10 +60,10 @@ contract Agriculture {
         address user;
     }    
     //idInversion => detalleInversion
-    mapping(uint256 => InvestmentHarvest) public IdInvestment;
-    uint256[] public listInvestment;
+    mapping(uint256 => InvestmentHarvest) private IdInvestment;
+    uint256[] private listInvestment;
 
-    mapping(address => uint256[]) public UserInvestment;  
+    mapping(address => uint256[]) private UserInvestment;  
 
     struct InvestmentTotalHarvest{
         uint256 treeSold;
@@ -128,10 +127,16 @@ contract Agriculture {
 
 
     function getUserInvestment(address _user, uint256 _index) external view returns (uint256){
-        
         return UserInvestment[_user][_index];
     }
 
+    function getLengthUserInvestment(address _user) external view returns (uint256){
+        return UserInvestment[_user].length;
+    }
+
+    function getIdInvestment(uint256 _idInvestment) external view returns (InvestmentHarvest memory){
+        return IdInvestment[_idInvestment];
+    }
 
     function getIdInvesmentUserHarvest(uint256 _idHarvest) private view returns (uint256){
         //return HarvestTotalInvestment[_idHarvest][msg.sender];
@@ -535,7 +540,6 @@ contract Agriculture {
 
         totalFee += fee;
        
-        increaseIdInvestment();
 
         bool isCreateInvestmen = CreateInvestment(
             _idHarvest,
@@ -560,6 +564,9 @@ contract Agriculture {
             _treeNumber,
             valueOfTrees
         );
+
+        increaseIdInvestment();
+
         require(isIncrease, "Error inverease total value of harvest");
 
         return true;
