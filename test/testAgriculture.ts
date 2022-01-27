@@ -212,7 +212,7 @@ describe ("Test smart contract Agriculture.sol", function() {
             await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(currrentIdHarvest)
 
             
-            const amount : BigNumber = ethers.utils.parseEther("2")
+            const amount : BigNumber = ethers.utils.parseEther("1")
             await ERC20Deploy.connect(owenrERC20).transfer(
                 user1.address,
                 amount.mul(2)                
@@ -231,11 +231,20 @@ describe ("Test smart contract Agriculture.sol", function() {
 
             const currentInvestments : BigNumber = await AgricultureDeploy.getCurrentIdInvestment()
 
-            const listInvest = await AgricultureDeploy.IdInvestment(currentInvestments)
+            const ivestment = await AgricultureDeploy.getIdInvestment(currentInvestments.sub(1));
 
-            const listInvestUser = await AgricultureDeploy.UserInvestment(user1.address, 0)
+            expect(ivestment.idInvestment).to.equal(currentInvestments.sub(1))
+            expect(ivestment.idHarvest).to.equal(currrentIdHarvest)
+            expect(ivestment.treeNumber).to.equal(1)
+            expect(ivestment.user).to.equal(user1.address)
+            expect(ivestment.valueInvestment).to.equal(amount)
 
-            console.log(listInvestUser)
+
+            
+
+            //const listInvestUser = await AgricultureDeploy.getUserInvestment(user1.address, currentInvestments.sub(1))
+
+            
 
             
             
