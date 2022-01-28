@@ -494,7 +494,30 @@ contract Agriculture {
     //******************************************************************************** */
     //                          funciones de usuarios
     //******************************************************************************** */
-    function invesmentUserHarvest(
+
+    // El usuario tiene una inversion en un cultivo?
+    function getIdInvestmentHarvestUser(
+        uint256 _idHarvest,
+        address _user
+    )external view returns(uint256){
+        uint256 investmentReturn = 0;
+        console.log(UserInvestment[_user].length);
+        if (UserInvestment[_user].length > 0){
+            for(uint i = 0 ; i < UserInvestment[_user].length; i ++ ){
+                uint256 idInvesment = UserInvestment[_user][i];
+                if(IdInvestment[idInvesment].idHarvest == _idHarvest){
+                    investmentReturn =  idInvesment;                   
+                }
+            }
+        }
+
+        return investmentReturn;
+    }
+
+            
+
+
+    function invesmentCreateUserHarvest(
         uint256 _idHarvest,
         uint256 _treeNumber,
         uint256 _amount
