@@ -92,16 +92,17 @@ describe ("Test smart contract Agriculture.sol", function() {
 
         it("cannot invest in a harvers that is not created", async () =>{
             const {user1, AgricultureDeploy} = await AgricultureData()
-
+           
             const idHarvest : number = 1
             const treeNumber : number = 100
             const amount = ethers.utils.parseEther("1")
 
             await expect(AgricultureDeploy.connect(user1).invesmentCreateUserHarvest(
                 idHarvest, treeNumber, amount
-            )).to.be.revertedWith("The Harves no exists")
+            )).to.be.revertedWith("The Harvest no exists")
 
         })
+
 
         it("cannot invest in a harvers that is pause", async () =>{
             const {owner, user1, AgricultureDeploy} = await AgricultureData()
@@ -121,8 +122,8 @@ describe ("Test smart contract Agriculture.sol", function() {
             //saber el id de la plantacion 
             const currentIdHarvest : BigNumber = await AgricultureDeploy.getCurrentIdHarvest();
 
-            //pausar la plantacion 
-            await AgricultureDeploy.connect(owner).pauseHarvest(currentIdHarvest)
+                        //pausar la plantacion 
+            await AgricultureDeploy.connect(owner).pauseHarvest(currentIdHarvest.sub(1))
 
             const idHarvest : number = 1
             const treeNumber : number = 100
@@ -207,9 +208,11 @@ describe ("Test smart contract Agriculture.sol", function() {
 
             const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
 
-            await AgricultureDeploy.connect(owner).changeStateHarvestToAnalysis(currrentIdHarvest)            
-            await AgricultureDeploy.connect(owner).changeStateHarvestToValidated(currrentIdHarvest)
-            await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(currrentIdHarvest)
+            const lastIdHarvest : BigNumber = currrentIdHarvest.sub(1)
+
+            await AgricultureDeploy.connect(owner).changeStateHarvestToAnalysis(lastIdHarvest)            
+            await AgricultureDeploy.connect(owner).changeStateHarvestToValidated(lastIdHarvest)
+            await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(lastIdHarvest)
 
             
             const amount : BigNumber = ethers.utils.parseEther("1")
@@ -224,7 +227,7 @@ describe ("Test smart contract Agriculture.sol", function() {
             )
             
             await AgricultureDeploy.connect(user1).invesmentCreateUserHarvest(
-                currrentIdHarvest,
+                lastIdHarvest,
                 1,
                 amount
             )         
@@ -234,7 +237,7 @@ describe ("Test smart contract Agriculture.sol", function() {
             const ivestment = await AgricultureDeploy.getIdInvestment(currentInvestments.sub(1));
 
             expect(ivestment.idInvestment).to.equal(currentInvestments.sub(1))
-            expect(ivestment.idHarvest).to.equal(currrentIdHarvest)
+            expect(ivestment.idHarvest).to.equal(lastIdHarvest)
             expect(ivestment.treeNumber).to.equal(1)
             expect(ivestment.user).to.equal(user1.address)
             expect(ivestment.valueInvestment).to.equal(amount)      
@@ -260,9 +263,12 @@ describe ("Test smart contract Agriculture.sol", function() {
 
             const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
 
-            await AgricultureDeploy.connect(owner).changeStateHarvestToAnalysis(currrentIdHarvest)            
-            await AgricultureDeploy.connect(owner).changeStateHarvestToValidated(currrentIdHarvest)
-            await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(currrentIdHarvest)
+            const lastIdHarvest : BigNumber = currrentIdHarvest.sub(1)
+
+
+            await AgricultureDeploy.connect(owner).changeStateHarvestToAnalysis(lastIdHarvest)            
+            await AgricultureDeploy.connect(owner).changeStateHarvestToValidated(lastIdHarvest)
+            await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(lastIdHarvest)
 
             
             const amount : BigNumber = ethers.utils.parseEther("1")
@@ -277,7 +283,7 @@ describe ("Test smart contract Agriculture.sol", function() {
             )
             
             await AgricultureDeploy.connect(user1).invesmentCreateUserHarvest(
-                currrentIdHarvest,
+                lastIdHarvest,
                 1,
                 amount
             )         
@@ -288,7 +294,7 @@ describe ("Test smart contract Agriculture.sol", function() {
 
             //console.log(ivestment)
 
-            const id = await AgricultureDeploy.getIdInvestmentHarvestUser(currrentIdHarvest, user1.address)
+            const id = await AgricultureDeploy.getIdInvestmentHarvestUser(lastIdHarvest, user1.address)
 
             // console.log(id)
         })

@@ -290,7 +290,6 @@ contract Agriculture {
     ) public onlyTeam returns (bool) {
         
         //inicia desde 1
-        increaseIdHarvest();
         
         IdDetailHarvest[currentIdHarvest].idHarvest = currentIdHarvest;
         IdDetailHarvest[currentIdHarvest].nameHarves = _nameHArve;
@@ -304,6 +303,8 @@ contract Agriculture {
         IdDetailHarvest[currentIdHarvest].pause = false;
 
         addFamerHarvest(_farmer, currentIdHarvest);
+
+        increaseIdHarvest();
 
         emit CrearteNewHarvest(msg.sender, currentIdHarvest, block.timestamp);     
 
@@ -429,7 +430,7 @@ contract Agriculture {
     //cambiar la visibilidad ??
     function pauseHarvest(uint256 _idHarvest) external onlyTeam returns (bool) {
         require(isPaused(_idHarvest) == false, "The harvest is Pause");
-        IdDetailHarvest[currentIdHarvest].pause = true;
+        IdDetailHarvest[_idHarvest].pause = true;
 
         emit Pause(msg.sender, _idHarvest, true, block.timestamp);
         return true;
@@ -523,10 +524,18 @@ contract Agriculture {
         uint256 _amount
     ) public returns (bool) {
         //existe el cultivo ?
+
+        
+        //console.log(IdDetailHarvest[_idHarvest].idHarvest);
+        //console.log(_idHarvest);
         require(
             IdDetailHarvest[_idHarvest].idHarvest == _idHarvest,
-            "The Harves no exists"
+            "The Harvest no exists"
         );
+
+        //console.log(1);
+
+        require(_idHarvest > 0, "The Harvest not exists");
 
         require(isPaused(_idHarvest) == false, "The harvest is Pause");
 
@@ -613,5 +622,8 @@ contract Agriculture {
         usersTeam[msg.sender] = true;
 
         USD = IERC20(usd);        
+
+        increaseIdHarvest();
+        increaseIdInvestment();
     }
 }
