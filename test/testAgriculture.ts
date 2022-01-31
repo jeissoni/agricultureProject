@@ -176,9 +176,11 @@ describe ("Test smart contract Agriculture.sol", function() {
 
             const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
 
-            await AgricultureDeploy.connect(owner).changeStateHarvestToAnalysis(currrentIdHarvest)            
-            await AgricultureDeploy.connect(owner).changeStateHarvestToValidated(currrentIdHarvest)
-            await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(currrentIdHarvest)
+            const lastIdHarvest : BigNumber = currrentIdHarvest.sub(1)
+
+            await AgricultureDeploy.connect(owner).changeStateHarvestToAnalysis(lastIdHarvest)            
+            await AgricultureDeploy.connect(owner).changeStateHarvestToValidated(lastIdHarvest)
+            await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(lastIdHarvest)
 
             const idHarvest : number = 1
             const treeNumber : number = 100
@@ -244,6 +246,66 @@ describe ("Test smart contract Agriculture.sol", function() {
 
         })
 
+        it("update investment harvest user", async()=>{
+            const {owner, user1, AgricultureDeploy, ERC20Deploy, owenrERC20 } = await AgricultureData()
+
+            //agregar agricultor
+            await AgricultureDeploy.connect(owner).addUserFarmer(user1.address)
+             //crear la cosecha de prueba
+            await AgricultureDeploy.connect(owner).crearteNewHarvest(
+                user1.address, //farmer
+                "Prueba", // nameHArvest
+                10, //treeNumber
+                10, //harvestDay
+                false, //rebewal
+                10, //salePrice 
+                ethers.utils.parseEther("1") //priceTree
+            ) 
+
+            const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
+
+            const lastIdHarvest : BigNumber = currrentIdHarvest.sub(1)
+
+            await AgricultureDeploy.connect(owner).changeStateHarvestToAnalysis(lastIdHarvest)            
+            await AgricultureDeploy.connect(owner).changeStateHarvestToValidated(lastIdHarvest)
+            await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(lastIdHarvest)
+
+            //tranferir saldo de USD a user1
+            const amount : BigNumber = ethers.utils.parseEther("1")
+            await ERC20Deploy.connect(owenrERC20).transfer(
+                user1.address,
+                amount.mul(4)                
+            )
+
+            await ERC20Deploy.connect(user1).approve(
+                AgricultureDeploy.address, 
+                amount.mul(4)  
+            )            
+
+
+            await AgricultureDeploy.connect(user1).invesmentCreateUserHarvest(
+                lastIdHarvest,
+                1,
+                amount
+            )       
+
+            await AgricultureDeploy.connect(user1).invesmentUpdateUserHarvest(
+                lastIdHarvest,
+                1,
+                amount
+            )       
+        
+            const currentInvestments : BigNumber = await AgricultureDeploy.getCurrentIdInvestment()
+
+            const ivestment = await AgricultureDeploy.getIdInvestment(currentInvestments.sub(1))
+
+            const id : BigNumber = await AgricultureDeploy.getIdInvestmentHarvestUser(lastIdHarvest, user1.address)   
+
+            expect(id).to.equal(ivestment.idInvestment)
+            expect(amount.mul(2)).to.equal(ivestment.valueInvestment)
+
+        })
+
 
         it("return investment harvest user",async () => {
             const {owner, user1, AgricultureDeploy, ERC20Deploy, owenrERC20 } = await AgricultureData()
@@ -270,7 +332,7 @@ describe ("Test smart contract Agriculture.sol", function() {
             await AgricultureDeploy.connect(owner).changeStateHarvestToValidated(lastIdHarvest)
             await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(lastIdHarvest)
 
-            
+            //tranferir saldo de USD a user1
             const amount : BigNumber = ethers.utils.parseEther("1")
             await ERC20Deploy.connect(owenrERC20).transfer(
                 user1.address,
@@ -292,11 +354,9 @@ describe ("Test smart contract Agriculture.sol", function() {
 
             const ivestment = await AgricultureDeploy.getIdInvestment(currentInvestments.sub(1))
 
-            //console.log(ivestment)
+            const id : BigNumber = await AgricultureDeploy.getIdInvestmentHarvestUser(lastIdHarvest, user1.address)
 
-            const id = await AgricultureDeploy.getIdInvestmentHarvestUser(lastIdHarvest, user1.address)
-
-            // console.log(id)
+            expect(id).to.equal(ivestment.idInvestment)
         })
 
 

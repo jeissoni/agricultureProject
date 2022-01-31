@@ -500,9 +500,8 @@ contract Agriculture {
     function getIdInvestmentHarvestUser(
         uint256 _idHarvest,
         address _user
-    )external view returns(uint256){
+    ) public view returns(uint256){
         uint256 investmentReturn = 0;
-        console.log(UserInvestment[_user].length);
         if (UserInvestment[_user].length > 0){
             for(uint i = 0 ; i < UserInvestment[_user].length; i ++ ){
                 uint256 idInvesment = UserInvestment[_user][i];
@@ -524,16 +523,11 @@ contract Agriculture {
         uint256 _amount
     ) public returns (bool) {
         //existe el cultivo ?
-
-        
-        //console.log(IdDetailHarvest[_idHarvest].idHarvest);
-        //console.log(_idHarvest);
+               
         require(
             IdDetailHarvest[_idHarvest].idHarvest == _idHarvest,
             "The Harvest no exists"
         );
-
-        //console.log(1);
 
         require(_idHarvest > 0, "The Harvest not exists");
 
@@ -544,7 +538,7 @@ contract Agriculture {
         );
 
         require(
-            IdDetailHarvest[currentIdHarvest].state ==
+            IdDetailHarvest[_idHarvest].state ==
                 stateHarvest.RECEIVE_FUNDS,
             "The state from harvest is not RECEIVE_FUNDS"
         );
@@ -603,6 +597,77 @@ contract Agriculture {
 
         return true;
     }
+
+     function invesmentUpdateUserHarvest(
+        uint256 _idHarvest,
+        uint256 _treeNumber,
+        uint256 _amount
+    ) public returns (bool) {
+
+        uint256 idInvestmentHarvestUser = getIdInvestmentHarvestUser(_idHarvest, msg.sender);
+
+        require(idInvestmentHarvestUser != 0 , "The Investment does not exist");
+
+        require(
+            IdDetailHarvest[_idHarvest].idHarvest == _idHarvest,
+            "The Harvest no exists"
+        );
+
+        require(_idHarvest > 0, "The Harvest not exists");
+
+        require(isPaused(_idHarvest) == false, "The harvest is Pause");
+
+        require(isTreesToSell(_idHarvest),
+            "There are no trees available to buy"
+        );
+
+        require(
+            IdDetailHarvest[_idHarvest].state ==
+                stateHarvest.RECEIVE_FUNDS,
+            "The state from harvest is not RECEIVE_FUNDS"
+        );
+
+        // tiene fondos suficientes?
+        require(
+            USD.balanceOf(msg.sender) >= _amount,
+            "Do not have the necessary funds of USD"
+        );
+
+
+        uint256 valueOfTrees = IdDetailHarvest[_idHarvest].priceTree *
+            _treeNumber;       
+
+        uint256 fee = getFeeTransactionFee(valueOfTrees);        
+     
+
+        require(
+            IdDetailHarvest[_idHarvest].priceTree * _treeNumber <=
+                (valueOfTrees + fee),
+            "Is not sending the value to execute the transaction"
+        );
+
+        USD.transferFrom(msg.sender, address(this), valueOfTrees);
+
+        totalFee += fee;
+
+
+        IdInvestment[idInvestmentHarvestUser].treeNumber += _treeNumber;
+        IdInvestment[idInvestmentHarvestUser].valueInvestment += valueOfTrees;
+        IdInvestment[idInvestmentHarvestUser].dateInvestment = block.timestamp;
+
+
+        bool isIncrease = IncreaseHarvestTotalInvestment(
+            _idHarvest,
+            _treeNumber,
+            valueOfTrees
+        );
+
+        require(isIncrease, "Error inverease total value of harvest");
+
+        return true;
+
+    }
+
     //-------------------------------------------------------------------------------- */
     //-------------------------------------------------------------------------------- */
 
