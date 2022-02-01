@@ -86,6 +86,10 @@ describe ("Test smart contract Agriculture.sol", function() {
             await expect(AgricultureDeploy.connect(user1).addUserFarmer(user1.address))
             .to.be.revertedWith('Exclusive function of the team');
         })
+
+        it("The team deposits earnings", async () =>{
+
+        })
     })
 
     describe("Test User", function(){
@@ -303,7 +307,7 @@ describe ("Test smart contract Agriculture.sol", function() {
 
             expect(id).to.equal(ivestment.idInvestment)
             expect(amount.mul(2)).to.equal(ivestment.valueInvestment)
-
+            expect(2).to.equal(ivestment.treeNumber)
         })
 
 

@@ -33,22 +33,21 @@ contract Agriculture {
         uint256 salePrice;
         //precio por arbol
         uint256 priceTree;
+        uint256 earningsTree;
+        uint256 earningsTotalHarvest;
         bool pause;
         stateHarvest state;
-
         address farmer;
-        //idInversion => idPlantacion 
+        //idInversion => idPlantacion
         mapping(uint256 => uint256) investmentHarvest;
         uint256[] listInvestment;
     }
-
-
 
     //idPlantacion => detallePlantacion
     mapping(uint256 => HarvestStruct) public IdDetailHarvest;
     uint256[] public listHarvest;
 
-    // agricultor(1) => cultivo(*) 
+    // agricultor(1) => cultivo(*)
     mapping(address => uint256[]) public FamerHarvest;
 
     struct InvestmentHarvest {
@@ -58,14 +57,14 @@ contract Agriculture {
         uint256 valueInvestment;
         uint256 dateInvestment;
         address user;
-    }    
+    }
     //idInversion => detalleInversion
     mapping(uint256 => InvestmentHarvest) private IdInvestment;
     uint256[] private listInvestment;
 
-    mapping(address => uint256[]) private UserInvestment;  
+    mapping(address => uint256[]) private UserInvestment;
 
-    struct InvestmentTotalHarvest{
+    struct InvestmentTotalHarvest {
         uint256 treeSold;
         uint256 totalAmount;
     }
@@ -73,9 +72,7 @@ contract Agriculture {
 
     mapping(address => bool) public usersTeam;
 
-    mapping(address => bool) public userFarmer; 
-
-
+    mapping(address => bool) public userFarmer;
 
     //********************************************************************************** */
     //                                 EVENT
@@ -115,8 +112,6 @@ contract Agriculture {
     //-----------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------
 
-
-
     modifier onlyTeam() {
         require(
             usersTeam[msg.sender] == true,
@@ -125,29 +120,42 @@ contract Agriculture {
         _;
     }
 
-
-    function getUserInvestment(address _user, uint256 _index) external view returns (uint256){
+    function getUserInvestment(address _user, uint256 _index)
+        external
+        view
+        returns (uint256)
+    {
         return UserInvestment[_user][_index];
     }
 
-    function getLengthUserInvestment(address _user) external view returns (uint256){
+    function getLengthUserInvestment(address _user)
+        external
+        view
+        returns (uint256)
+    {
         return UserInvestment[_user].length;
     }
 
-    function getIdInvestment(uint256 _idInvestment) external view returns (InvestmentHarvest memory){
+    function getIdInvestment(uint256 _idInvestment)
+        external
+        view
+        returns (InvestmentHarvest memory)
+    {
         return IdInvestment[_idInvestment];
     }
 
-    function getIdInvesmentUserHarvest(uint256 _idHarvest) private view returns (uint256){
+    function getIdInvesmentUserHarvest(uint256 _idHarvest)
+        private
+        view
+        returns (uint256)
+    {
         //return HarvestTotalInvestment[_idHarvest][msg.sender];
-
     }
 
     //Esta una cosecha pausada?
     function isPaused(uint256 _idHarvest) public view returns (bool) {
         return IdDetailHarvest[_idHarvest].pause;
     }
-
 
     //recibier en expresado en ETH
     function setFeeTransaction(uint256 _fee) private onlyTeam returns (bool) {
@@ -197,14 +205,13 @@ contract Agriculture {
     //*************************************************************************/
     //                      Funciones de plantaciones
     //*************************************************************************/
-    function getCurrentIdHarvest() external view returns(uint256){
+    function getCurrentIdHarvest() external view returns (uint256) {
         return currentIdHarvest;
     }
 
-    function getCurrentIdInvestment() external view returns(uint256){
+    function getCurrentIdInvestment() external view returns (uint256) {
         return currentIdInvestment;
     }
-
 
     function increaseIdHarvest() private returns (bool) {
         currentIdHarvest += 1;
@@ -215,7 +222,7 @@ contract Agriculture {
         currentIdInvestment += 1;
         return true;
     }
-    
+
     // relaciona una inversion con un usuario
     function addUserInvestment(address _user, uint256 _idInvestment)
         private
@@ -238,6 +245,24 @@ contract Agriculture {
         return true;
     }
 
+    function getIdHarvestFarmer(uint256 _idHarvest, address _user)
+        public
+        view
+        returns (uint256)
+    {
+        uint256 harvestReturn = 0;
+        if (FamerHarvest[_user].length > 0) {
+            for (uint256 i = 0; i < FamerHarvest[_user].length; i++) {
+                uint256 idHarvest = UserInvestment[_user][i];
+                if (IdDetailHarvest[idHarvest].idHarvest == _idHarvest) {
+                    harvestReturn = idHarvest;
+                }
+            }
+        }
+
+        return harvestReturn;
+    }
+
     // relaciona un cultivo con un agricultor
     function addFamerHarvest(address _farmer, uint256 _idHarvest)
         private
@@ -258,9 +283,9 @@ contract Agriculture {
         return true;
     }
 
-    function addTreeSoldHarvest(uint256 _idHarvest, uint256 _trees) 
-    private
-    returns (bool)
+    function addTreeSoldHarvest(uint256 _idHarvest, uint256 _trees)
+        private
+        returns (bool)
     {
         require(
             IdDetailHarvest[_idHarvest].idHarvest == _idHarvest,
@@ -269,16 +294,14 @@ contract Agriculture {
 
         require(isPaused(_idHarvest) == false, "The harvest is Pause");
 
-
         HarvestTotalInvestment[_idHarvest].treeSold += _trees;
 
         return true;
     }
 
-    
     // funcions faltaria hacer validaciones
     // crear un cultivo
-    // cambiar la visibilidad 
+    // cambiar la visibilidad
     function crearteNewHarvest(
         address _farmer,
         string memory _nameHArve,
@@ -288,9 +311,8 @@ contract Agriculture {
         uint256 _salePrice,
         uint256 _priceTree
     ) public onlyTeam returns (bool) {
-        
         //inicia desde 1
-        
+
         IdDetailHarvest[currentIdHarvest].idHarvest = currentIdHarvest;
         IdDetailHarvest[currentIdHarvest].nameHarves = _nameHArve;
         IdDetailHarvest[currentIdHarvest].farmer = _farmer;
@@ -298,7 +320,7 @@ contract Agriculture {
         IdDetailHarvest[currentIdHarvest].harvestDays = _harvesDays;
         IdDetailHarvest[currentIdHarvest].renewal = _renewal;
         IdDetailHarvest[currentIdHarvest].salePrice = _salePrice;
-        IdDetailHarvest[currentIdHarvest].priceTree = _priceTree;    
+        IdDetailHarvest[currentIdHarvest].priceTree = _priceTree;
         IdDetailHarvest[currentIdHarvest].state = stateHarvest.CREATED;
         IdDetailHarvest[currentIdHarvest].pause = false;
 
@@ -306,7 +328,54 @@ contract Agriculture {
 
         increaseIdHarvest();
 
-        emit CrearteNewHarvest(msg.sender, currentIdHarvest, block.timestamp);     
+        emit CrearteNewHarvest(msg.sender, currentIdHarvest, block.timestamp);
+
+        return true;
+    }
+
+    function earningsDepositTeam(uint256 _idHarvest, uint256 _amount)
+        public
+        returns (bool)
+    {
+        require(
+            USD.balanceOf(msg.sender) >= _amount,
+            "Do not have the necessary funds of USD"
+        );
+
+        require(userFarmer[msg.sender] == true, "The addres is not a farmer");
+
+        require(
+            IdDetailHarvest[_idHarvest].state == stateHarvest.FINALIZED,
+            "The state from harvest is not FINALIZED"
+        );
+
+        uint256 idHarvest = getIdHarvestFarmer(_idHarvest, msg.sender);
+
+        require(idHarvest > 0, "The harvest does not exists");
+
+        uint256 treeSoldHarvest = HarvestTotalInvestment[_idHarvest].treeSold;
+
+        uint256 earningsTree = IdDetailHarvest[_idHarvest].earningsTree;
+
+        uint256 transactionFee = getFeeTransactionFee(
+            treeSoldHarvest * earningsTree
+        );
+
+        uint256 totalAmountTransaction = (treeSoldHarvest * earningsTree) +
+            transactionFee;
+
+        require(
+            _amount >= totalAmountTransaction,
+            "The amount does not equal the promised earnings"
+        );
+
+        USD.transferFrom(msg.sender, address(this), totalAmountTransaction);
+
+        totalFee += transactionFee;
+
+        IdDetailHarvest[_idHarvest].earningsTotalHarvest =
+            treeSoldHarvest *
+            earningsTree;
 
         return true;
     }
@@ -328,8 +397,8 @@ contract Agriculture {
             IdDetailHarvest[_idHarvest].state == stateHarvest.CREATED,
             "The state from harvest is not CREATED"
         );
-        
-        IdDetailHarvest[_idHarvest].state = stateHarvest.ANALYSIS;        
+
+        IdDetailHarvest[_idHarvest].state = stateHarvest.ANALYSIS;
 
         emit ChangeStateHarvest(
             msg.sender,
@@ -351,7 +420,7 @@ contract Agriculture {
             IdDetailHarvest[_idHarvest].state == stateHarvest.ANALYSIS,
             "The state from harvest is not ANALYSIS"
         );
-        IdDetailHarvest[_idHarvest].state = stateHarvest.VALIDATED;        
+        IdDetailHarvest[_idHarvest].state = stateHarvest.VALIDATED;
 
         emit ChangeStateHarvest(
             msg.sender,
@@ -439,7 +508,8 @@ contract Agriculture {
     function unPauseHArvest(uint256 _idHarvest)
         private
         onlyTeam
-        returns (bool){
+        returns (bool)
+    {
         require(isPaused(_idHarvest) == true, "The harvest is not unPause");
         IdDetailHarvest[currentIdHarvest].pause = false;
         emit Unpause(msg.sender, _idHarvest, true, block.timestamp);
@@ -452,13 +522,15 @@ contract Agriculture {
     //******************************************************************************* */
     //                          Funicones Inversiones
     //******************************************************************************* */
-    
+
     //hay arboles por vender?
-    function isTreesToSell(uint256 _idHarvest) private view returns(bool){
+    function isTreesToSell(uint256 _idHarvest) private view returns (bool) {
         bool toSell = false;
-        if (HarvestTotalInvestment[_idHarvest].treeSold <=
-            IdDetailHarvest[_idHarvest].treeNumber){
-                toSell = true;
+        if (
+            HarvestTotalInvestment[_idHarvest].treeSold <=
+            IdDetailHarvest[_idHarvest].treeNumber
+        ) {
+            toSell = true;
         }
         return toSell;
     }
@@ -468,7 +540,7 @@ contract Agriculture {
         uint256 _treeNumber,
         uint256 _amount,
         address _user
-    ) private returns (bool){
+    ) private returns (bool) {
         IdInvestment[currentIdInvestment].idInvestment = currentIdInvestment;
         IdInvestment[currentIdInvestment].idHarvest = _idHarvest;
         IdInvestment[currentIdInvestment].treeNumber = _treeNumber;
@@ -482,31 +554,31 @@ contract Agriculture {
         uint256 _idHarvest,
         uint256 _treeNumber,
         uint256 _valueOfTrees
-    ) private returns (bool){
+    ) private returns (bool) {
         HarvestTotalInvestment[_idHarvest].treeSold += _treeNumber;
         HarvestTotalInvestment[_idHarvest].totalAmount += _valueOfTrees;
         return true;
-    }   
-    
-    //-------------------------------------------------------------------------------- */
-    //-------------------------------------------------------------------------------- */
+    }
 
+    //-------------------------------------------------------------------------------- */
+    //-------------------------------------------------------------------------------- */
 
     //******************************************************************************** */
     //                          funciones de usuarios
     //******************************************************************************** */
 
     // El usuario tiene una inversion en un cultivo?
-    function getIdInvestmentHarvestUser(
-        uint256 _idHarvest,
-        address _user
-    ) public view returns(uint256){
+    function getIdInvestmentHarvestUser(uint256 _idHarvest, address _user)
+        public
+        view
+        returns (uint256)
+    {
         uint256 investmentReturn = 0;
-        if (UserInvestment[_user].length > 0){
-            for(uint i = 0 ; i < UserInvestment[_user].length; i ++ ){
+        if (UserInvestment[_user].length > 0) {
+            for (uint256 i = 0; i < UserInvestment[_user].length; i++) {
                 uint256 idInvesment = UserInvestment[_user][i];
-                if(IdInvestment[idInvesment].idHarvest == _idHarvest){
-                    investmentReturn =  idInvesment;                   
+                if (IdInvestment[idInvesment].idHarvest == _idHarvest) {
+                    investmentReturn = idInvesment;
                 }
             }
         }
@@ -514,16 +586,13 @@ contract Agriculture {
         return investmentReturn;
     }
 
-            
-
-
     function invesmentCreateUserHarvest(
         uint256 _idHarvest,
         uint256 _treeNumber,
         uint256 _amount
     ) public returns (bool) {
         //existe el cultivo ?
-               
+
         require(
             IdDetailHarvest[_idHarvest].idHarvest == _idHarvest,
             "The Harvest no exists"
@@ -533,13 +602,13 @@ contract Agriculture {
 
         require(isPaused(_idHarvest) == false, "The harvest is Pause");
 
-        require(isTreesToSell(_idHarvest),
+        require(
+            isTreesToSell(_idHarvest),
             "There are no trees available to buy"
         );
 
         require(
-            IdDetailHarvest[_idHarvest].state ==
-                stateHarvest.RECEIVE_FUNDS,
+            IdDetailHarvest[_idHarvest].state == stateHarvest.RECEIVE_FUNDS,
             "The state from harvest is not RECEIVE_FUNDS"
         );
 
@@ -553,8 +622,6 @@ contract Agriculture {
             _treeNumber;
 
         uint256 fee = getFeeTransactionFee(valueOfTrees);
-        
-     
 
         require(
             IdDetailHarvest[_idHarvest].priceTree * _treeNumber <=
@@ -565,7 +632,6 @@ contract Agriculture {
         USD.transferFrom(msg.sender, address(this), valueOfTrees);
 
         totalFee += fee;
-       
 
         bool isCreateInvestmen = CreateInvestment(
             _idHarvest,
@@ -573,17 +639,16 @@ contract Agriculture {
             valueOfTrees,
             msg.sender
         );
-        require (isCreateInvestmen, "Error creating investment");
-
+        require(isCreateInvestmen, "Error creating investment");
 
         listInvestment.push(currentIdInvestment);
         UserInvestment[msg.sender].push(currentIdInvestment);
-   
 
         //Actualizacion registro plantacion -- funcion ?
-        IdDetailHarvest[_idHarvest].investmentHarvest[currentIdInvestment] = _idHarvest;
+        IdDetailHarvest[_idHarvest].investmentHarvest[
+            currentIdInvestment
+        ] = _idHarvest;
         IdDetailHarvest[_idHarvest].listInvestment.push(currentIdInvestment);
-
 
         bool isIncrease = IncreaseHarvestTotalInvestment(
             _idHarvest,
@@ -598,15 +663,17 @@ contract Agriculture {
         return true;
     }
 
-     function invesmentUpdateUserHarvest(
+    function invesmentUpdateUserHarvest(
         uint256 _idHarvest,
         uint256 _treeNumber,
         uint256 _amount
     ) public returns (bool) {
+        uint256 idInvestmentHarvestUser = getIdInvestmentHarvestUser(
+            _idHarvest,
+            msg.sender
+        );
 
-        uint256 idInvestmentHarvestUser = getIdInvestmentHarvestUser(_idHarvest, msg.sender);
-
-        require(idInvestmentHarvestUser != 0 , "The Investment does not exist");
+        require(idInvestmentHarvestUser != 0, "The Investment does not exist");
 
         require(
             IdDetailHarvest[_idHarvest].idHarvest == _idHarvest,
@@ -617,13 +684,13 @@ contract Agriculture {
 
         require(isPaused(_idHarvest) == false, "The harvest is Pause");
 
-        require(isTreesToSell(_idHarvest),
+        require(
+            isTreesToSell(_idHarvest),
             "There are no trees available to buy"
         );
 
         require(
-            IdDetailHarvest[_idHarvest].state ==
-                stateHarvest.RECEIVE_FUNDS,
+            IdDetailHarvest[_idHarvest].state == stateHarvest.RECEIVE_FUNDS,
             "The state from harvest is not RECEIVE_FUNDS"
         );
 
@@ -633,12 +700,10 @@ contract Agriculture {
             "Do not have the necessary funds of USD"
         );
 
-
         uint256 valueOfTrees = IdDetailHarvest[_idHarvest].priceTree *
-            _treeNumber;       
+            _treeNumber;
 
-        uint256 fee = getFeeTransactionFee(valueOfTrees);        
-     
+        uint256 fee = getFeeTransactionFee(valueOfTrees);
 
         require(
             IdDetailHarvest[_idHarvest].priceTree * _treeNumber <=
@@ -650,11 +715,9 @@ contract Agriculture {
 
         totalFee += fee;
 
-
         IdInvestment[idInvestmentHarvestUser].treeNumber += _treeNumber;
         IdInvestment[idInvestmentHarvestUser].valueInvestment += valueOfTrees;
         IdInvestment[idInvestmentHarvestUser].dateInvestment = block.timestamp;
-
 
         bool isIncrease = IncreaseHarvestTotalInvestment(
             _idHarvest,
@@ -665,14 +728,10 @@ contract Agriculture {
         require(isIncrease, "Error inverease total value of harvest");
 
         return true;
-
     }
 
     //-------------------------------------------------------------------------------- */
     //-------------------------------------------------------------------------------- */
-
-  
-
 
     //funciones de equipo
 
@@ -683,10 +742,10 @@ contract Agriculture {
     //---------------------------------------------------------------------- */
     //---------------------------------------------------------------------- */
 
-    constructor(address usd)  {
+    constructor(address usd) {
         usersTeam[msg.sender] = true;
 
-        USD = IERC20(usd);        
+        USD = IERC20(usd);
 
         increaseIdHarvest();
         increaseIdInvestment();
