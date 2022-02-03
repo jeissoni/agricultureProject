@@ -87,9 +87,109 @@ describe ("Test smart contract Agriculture.sol", function() {
             .to.be.revertedWith('Exclusive function of the team');
         })
 
-        it("The team deposits earnings", async () =>{
+        describe("The team deposits earnings", function () {
+
+
+            it("can't deposit if user is not a farmer", async () =>{
+                const { user1,  AgricultureDeploy, } = await AgricultureData()
+                
+                const amount : BigNumber = ethers.utils.parseEther("1")
+
+                await expect(AgricultureDeploy.connect(user1).earningsDepositTeam(0, amount
+                    )).to.be.revertedWith("The addres is not a farmer") 
+
+            })
+
+
+
+            it("can't deposit if Harvest is not exists", async () =>{
+                const {owner, user1,  AgricultureDeploy, } = await AgricultureData()
+
+                await AgricultureDeploy.connect(owner).addUserFarmer(user1.address)
+
+                
+                const amount : BigNumber = ethers.utils.parseEther("1")
+
+                await expect(AgricultureDeploy.connect(user1).earningsDepositTeam(5, amount
+                    )).to.be.revertedWith("The harvest does not exists")  
+            })
+
+
+         
+
+            it("can't deposit if Harvest is not FINALIZED",async () => {
+                const {owner, user1, owenrERC20 ,AgricultureDeploy, ERC20Deploy} = await AgricultureData()
+
+                //agregar agricultor
+                await AgricultureDeploy.connect(owner).addUserFarmer(user1.address)
+                 //crear la cosecha de prueba
+                await AgricultureDeploy.connect(owner).crearteNewHarvest(
+                    user1.address, //farmer
+                    "Prueba", // nameHArvest
+                    10, //treeNumber
+                    10, //harvestDay
+                    false, //rebewal
+                    10, //salePrice 
+                    ethers.utils.parseEther("1") //priceTree
+                ) 
+
+                const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
+    
+                const lastIdHarvest : BigNumber = currrentIdHarvest.sub(1)
+
+                const amount : BigNumber = ethers.utils.parseEther("1")
+                await ERC20Deploy.connect(owenrERC20).transfer(
+                    user1.address,
+                    amount.mul(1)                
+                )   
+     
+                  
+                await expect(AgricultureDeploy.connect(user1).earningsDepositTeam(lastIdHarvest, amount
+                )).to.be.revertedWith("The state from harvest is not FINALIZED")    
+                
+                
+            })
+
+
+            it("verify that you have the necessary funds", async () =>{
+                const {owner, user1, owenrERC20 ,AgricultureDeploy, ERC20Deploy} = await AgricultureData()
+    
+                //agregar agricultor
+                await AgricultureDeploy.connect(owner).addUserFarmer(user1.address)
+                 //crear la cosecha de prueba
+                await AgricultureDeploy.connect(owner).crearteNewHarvest(
+                    user1.address, //farmer
+                    "Prueba", // nameHArvest
+                    10, //treeNumber
+                    10, //harvestDay
+                    false, //rebewal
+                    10, //salePrice 
+                    ethers.utils.parseEther("1") //priceTree
+                ) 
+    
+                const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
+    
+                const lastIdHarvest : BigNumber = currrentIdHarvest.sub(1)
+    
+    
+                 //tranferir saldo de USD a user1
+                const amount : BigNumber = ethers.utils.parseEther("1")
+                await ERC20Deploy.connect(owenrERC20).transfer(
+                    user1.address,
+                    amount.mul(2)                
+                )
+    
+    
+                await AgricultureDeploy.connect(owner).changeStateHarvestToAnalysis(lastIdHarvest)            
+                await AgricultureDeploy.connect(owner).changeStateHarvestToValidated(lastIdHarvest)
+                await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(lastIdHarvest)          
+                await AgricultureDeploy.connect(owner).changeStateHarvestToExecution(lastIdHarvest)          
+                await AgricultureDeploy.connect(owner).changeStateHarvestToFinalized(lastIdHarvest)          
+    
+            })
 
         })
+      
     })
 
     describe("Test User", function(){
