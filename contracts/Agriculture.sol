@@ -387,7 +387,7 @@ contract Agriculture {
     //                             Funciones de cambio de estado
     //************************************************************************************/
     function changeStateHarvestToAnalysis(uint256 _idHarvest)
-        public
+        external
         onlyTeam
         returns (bool)
     {
@@ -410,7 +410,7 @@ contract Agriculture {
     }
 
     function changeStateHarvestToValidated(uint256 _idHarvest)
-        public
+        external
         onlyTeam
         returns (bool)
     {
@@ -432,7 +432,7 @@ contract Agriculture {
     }
 
     function changeStateHarvestToReceiveFunds(uint256 _idHarvest)
-        public
+        external
         onlyTeam
         returns (bool)
     {
@@ -455,7 +455,7 @@ contract Agriculture {
     }
 
     function changeStateHarvestToExecution(uint256 _idHarvest)
-        private
+        external
         onlyTeam
         returns (bool)
     {
@@ -476,7 +476,7 @@ contract Agriculture {
     }
 
     function changeStateHarvestToFinalized(uint256 _idHarvest)
-        private
+        external
         onlyTeam
         returns (bool)
     {
