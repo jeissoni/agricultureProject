@@ -45,7 +45,7 @@ contract Agriculture {
 
     //idPlantacion => detallePlantacion
     mapping(uint256 => HarvestStruct) public IdDetailHarvest;
-    uint256[] public listHarvest;
+    //uint256[] public listHarvest;
 
     // agricultor(1) => cultivo(*)
     mapping(address => uint256[]) public FamerHarvest;
