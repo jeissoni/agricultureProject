@@ -250,10 +250,12 @@ contract Agriculture {
         view
         returns (uint256)
     {
+       
+
         uint256 harvestReturn = 0;
         if (FamerHarvest[_user].length > 0) {
             for (uint256 i = 0; i < FamerHarvest[_user].length; i++) {
-                uint256 idHarvest = UserInvestment[_user][i];
+                uint256 idHarvest = FamerHarvest[_user][i];
                 if (IdDetailHarvest[idHarvest].idHarvest == _idHarvest) {
                     harvestReturn = idHarvest;
                 }
