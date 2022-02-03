@@ -337,21 +337,21 @@ contract Agriculture {
         public
         returns (bool)
     {
-        require(
-            USD.balanceOf(msg.sender) >= _amount,
-            "Do not have the necessary funds of USD"
-        );
-
         require(userFarmer[msg.sender] == true, "The addres is not a farmer");
+
+        uint256 idHarvest = getIdHarvestFarmer(_idHarvest, msg.sender);
+
+        require(idHarvest > 0, "The harvest does not exists");
 
         require(
             IdDetailHarvest[_idHarvest].state == stateHarvest.FINALIZED,
             "The state from harvest is not FINALIZED"
         );
 
-        uint256 idHarvest = getIdHarvestFarmer(_idHarvest, msg.sender);
-
-        require(idHarvest > 0, "The harvest does not exists");
+         require(
+            USD.balanceOf(msg.sender) >= _amount,
+            "Do not have the necessary funds of USD"
+        );       
 
         uint256 treeSoldHarvest = HarvestTotalInvestment[_idHarvest].treeSold;
 
