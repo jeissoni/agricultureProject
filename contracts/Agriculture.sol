@@ -337,7 +337,7 @@ contract Agriculture {
         return true;
     }
 
-    function earningsDepositTeam(uint256 _idHarvest, uint256 _amount)
+    function earningsDepositFarmer(uint256 _idHarvest, uint256 _amount)
         public
         returns (bool)
     {
