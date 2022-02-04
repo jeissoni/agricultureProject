@@ -355,32 +355,32 @@ contract Agriculture {
          require(
             USD.balanceOf(msg.sender) >= _amount,
             "Do not have the necessary funds of USD"
-        );       
-
+        );  
+        
         uint256 treeSoldHarvest = HarvestTotalInvestment[_idHarvest].treeSold;
 
+
         uint256 earningsTree = IdDetailHarvest[_idHarvest].earningsTree;
+
 
         uint256 transactionFee = getFeeTransactionFee(
             treeSoldHarvest * earningsTree
         );
 
         uint256 totalAmountTransaction = (treeSoldHarvest * earningsTree) +
-            transactionFee;
-
+            transactionFee;             
+      
+        
         require(
             _amount >= totalAmountTransaction,
             "The amount does not equal the promised earnings"
         );
 
-        USD.transferFrom(msg.sender, address(this), totalAmountTransaction);
+        USD.transferFrom(msg.sender, address(this), totalAmountTransaction);        
+
 
         totalFee += transactionFee;
-
-        IdDetailHarvest[_idHarvest].earningsTotalHarvest =
-            treeSoldHarvest *
-            earningsTree;
-
+  
         return true;
     }
 
