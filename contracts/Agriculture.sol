@@ -628,8 +628,8 @@ contract Agriculture {
         uint256 fee = getFeeTransactionFee(valueOfTrees);
 
         require(
-            IdDetailHarvest[_idHarvest].priceTree * _treeNumber <=
-                (valueOfTrees + fee),
+            (IdDetailHarvest[_idHarvest].priceTree * _treeNumber) + fee <=
+                _amount,
             "Is not sending the value to execute the transaction"
         );
 
@@ -710,8 +710,8 @@ contract Agriculture {
         uint256 fee = getFeeTransactionFee(valueOfTrees);
 
         require(
-            IdDetailHarvest[_idHarvest].priceTree * _treeNumber <=
-                (valueOfTrees + fee),
+            (IdDetailHarvest[_idHarvest].priceTree * _treeNumber) + fee <=
+                _amount,
             "Is not sending the value to execute the transaction"
         );
 
