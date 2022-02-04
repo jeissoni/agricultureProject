@@ -34,7 +34,7 @@ contract Agriculture {
         //precio por arbol
         uint256 priceTree;
         uint256 earningsTree;
-        uint256 earningsTotalHarvest;
+        //uint256 earningsTotalHarvest;
         bool pause;
         stateHarvest state;
         address farmer;
