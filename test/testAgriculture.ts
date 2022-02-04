@@ -130,7 +130,8 @@ describe ("Test smart contract Agriculture.sol", function() {
                     10, //harvestDay
                     false, //rebewal
                     10, //salePrice 
-                    ethers.utils.parseEther("1") //priceTree
+                    ethers.utils.parseEther("1"), //priceTree
+                    ethers.utils.parseEther("4")
                 ) 
 
                 const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
@@ -164,7 +165,8 @@ describe ("Test smart contract Agriculture.sol", function() {
                     10, //harvestDay
                     false, //rebewal
                     10, //salePrice 
-                    ethers.utils.parseEther("1") //priceTree
+                    ethers.utils.parseEther("1"), //priceTree
+                    ethers.utils.parseEther("4")
                 ) 
     
                 const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
@@ -221,7 +223,8 @@ describe ("Test smart contract Agriculture.sol", function() {
                 10,
                 false,
                 10,
-                10
+                10,
+                40
             )
             //saber el id de la plantacion 
             const currentIdHarvest : BigNumber = await AgricultureDeploy.getCurrentIdHarvest();
@@ -251,7 +254,8 @@ describe ("Test smart contract Agriculture.sol", function() {
                 10,
                 false,
                 10,
-                10
+                10,
+                40
             )          
 
             const idHarvest : number = 1
@@ -275,7 +279,8 @@ describe ("Test smart contract Agriculture.sol", function() {
                 10,
                 false,
                 10,
-                10
+                10,
+                40
             ) 
 
             const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
@@ -309,7 +314,8 @@ describe ("Test smart contract Agriculture.sol", function() {
                 10, //harvestDay
                 false, //rebewal
                 10, //salePrice 
-                ethers.utils.parseEther("1") //priceTree
+                ethers.utils.parseEther("1"), //priceTree
+                ethers.utils.parseEther("4") 
             ) 
 
             const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
@@ -363,7 +369,8 @@ describe ("Test smart contract Agriculture.sol", function() {
                 10, //harvestDay
                 false, //rebewal
                 10, //salePrice 
-                ethers.utils.parseEther("1") //priceTree
+                ethers.utils.parseEther("1"),
+                ethers.utils.parseEther("4"), //priceTree
             ) 
 
             const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
@@ -424,7 +431,8 @@ describe ("Test smart contract Agriculture.sol", function() {
                 10, //harvestDay
                 false, //rebewal
                 10, //salePrice 
-                ethers.utils.parseEther("1") //priceTree
+                ethers.utils.parseEther("1"), //priceTree
+                ethers.utils.parseEther("4") 
             ) 
 
             const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
