@@ -171,23 +171,155 @@ describe ("Test smart contract Agriculture.sol", function() {
     
                 const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
     
-                const lastIdHarvest : BigNumber = currrentIdHarvest.sub(1)
-    
+                const lastIdHarvest : BigNumber = currrentIdHarvest.sub(1)    
     
                  //tranferir saldo de USD a user1
                 const amount : BigNumber = ethers.utils.parseEther("1")
+             
+                await AgricultureDeploy.connect(owner).changeStateHarvestToAnalysis(lastIdHarvest)            
+                await AgricultureDeploy.connect(owner).changeStateHarvestToValidated(lastIdHarvest)
+                await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(lastIdHarvest)  
+                
+                await AgricultureDeploy.connect(owner).changeStateHarvestToExecution(lastIdHarvest)          
+                await AgricultureDeploy.connect(owner).changeStateHarvestToFinalized(lastIdHarvest)          
+
+                await expect(AgricultureDeploy.connect(user1).earningsDepositFarmer(lastIdHarvest, amount
+                    )).to.be.revertedWith("Do not have the necessary funds of USD")
+    
+            })
+
+
+            it("The amount does not equal the promised earnings",async () => {
+                const {owner, owenrERC20, user1, user2, AgricultureDeploy, ERC20Deploy} = await AgricultureData()
+    
+                const amount : BigNumber = ethers.utils.parseEther("1")
+
+                //agregar agricultor
+                await AgricultureDeploy.connect(owner).addUserFarmer(user1.address)
+                 //crear la cosecha de prueba
+                await AgricultureDeploy.connect(owner).crearteNewHarvest(
+                    user1.address, //farmer
+                    "Prueba", // nameHArvest
+                    10, //treeNumber
+                    10, //harvestDay
+                    false, //rebewal
+                    10, //salePrice 
+                    amount, //priceTree
+                    amount.mul(5)
+                ) 
+    
+                const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
+    
+                const lastIdHarvest : BigNumber = currrentIdHarvest.sub(1)    
+    
+                 //tranferir saldo de USD a user1
+             
+                await AgricultureDeploy.connect(owner).changeStateHarvestToAnalysis(lastIdHarvest)            
+                await AgricultureDeploy.connect(owner).changeStateHarvestToValidated(lastIdHarvest)
+                await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(lastIdHarvest)  
+                
+                //user1 Farmer
                 await ERC20Deploy.connect(owenrERC20).transfer(
                     user1.address,
                     amount.mul(2)                
                 )
+                
+                //user2 Investment
+                await ERC20Deploy.connect(owenrERC20).transfer(
+                    user2.address,
+                    amount.mul(2)                
+                )
     
-    
-                await AgricultureDeploy.connect(owner).changeStateHarvestToAnalysis(lastIdHarvest)            
-                await AgricultureDeploy.connect(owner).changeStateHarvestToValidated(lastIdHarvest)
-                await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(lastIdHarvest)          
+                await ERC20Deploy.connect(user1).approve(
+                    AgricultureDeploy.address, 
+                    amount
+                )
+
+                await ERC20Deploy.connect(user2).approve(
+                    AgricultureDeploy.address, 
+                    amount
+                )
+
+                //inversion usuario
+                await AgricultureDeploy.connect(user2).invesmentCreateUserHarvest(
+                    lastIdHarvest,
+                    1,
+                    amount
+                )         
+
                 await AgricultureDeploy.connect(owner).changeStateHarvestToExecution(lastIdHarvest)          
                 await AgricultureDeploy.connect(owner).changeStateHarvestToFinalized(lastIdHarvest)          
+
+                //deposito de ganancias 
+                await expect(AgricultureDeploy.connect(user1).earningsDepositFarmer(lastIdHarvest, amount
+                    )).to.be.revertedWith("The amount does not equal the promised earnings")
+            })
+
+
+            it("Earnings Deposit Farmer",async () => {
+                const {owner, owenrERC20, user1, user2, AgricultureDeploy, ERC20Deploy} = await AgricultureData()
     
+                const amount : BigNumber = ethers.utils.parseEther("1")
+
+                //agregar agricultor
+                await AgricultureDeploy.connect(owner).addUserFarmer(user1.address)
+                 //crear la cosecha de prueba
+                await AgricultureDeploy.connect(owner).crearteNewHarvest(
+                    user1.address, //farmer
+                    "Prueba", // nameHArvest
+                    10, //treeNumber
+                    10, //harvestDay
+                    false, //rebewal
+                    10, //salePrice 
+                    amount, //priceTree
+                    amount.mul(5)
+                ) 
+    
+                const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
+    
+                const lastIdHarvest : BigNumber = currrentIdHarvest.sub(1)    
+    
+                 //tranferir saldo de USD a user1
+             
+                await AgricultureDeploy.connect(owner).changeStateHarvestToAnalysis(lastIdHarvest)            
+                await AgricultureDeploy.connect(owner).changeStateHarvestToValidated(lastIdHarvest)
+                await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(lastIdHarvest)  
+                
+                //user1 Farmer
+                await ERC20Deploy.connect(owenrERC20).transfer(
+                    user1.address,
+                    amount.mul(5)                
+                )
+                
+                //user2 Investment
+                await ERC20Deploy.connect(owenrERC20).transfer(
+                    user2.address,
+                    amount.mul(2)                
+                )
+    
+                await ERC20Deploy.connect(user1).approve(
+                    AgricultureDeploy.address, 
+                    amount.mul(5)
+                )
+
+                await ERC20Deploy.connect(user2).approve(
+                    AgricultureDeploy.address, 
+                    amount
+                )
+
+                //inversion usuario
+                await AgricultureDeploy.connect(user2).invesmentCreateUserHarvest(
+                    lastIdHarvest,
+                    1,
+                    amount
+                )         
+
+                await AgricultureDeploy.connect(owner).changeStateHarvestToExecution(lastIdHarvest)          
+                await AgricultureDeploy.connect(owner).changeStateHarvestToFinalized(lastIdHarvest)          
+
+                //deposito de ganancias 
+                await AgricultureDeploy.connect(user1).earningsDepositFarmer(lastIdHarvest, amount.mul(5))
+               
             })
 
         })
