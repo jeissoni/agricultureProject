@@ -95,7 +95,7 @@ describe ("Test smart contract Agriculture.sol", function() {
                 
                 const amount : BigNumber = ethers.utils.parseEther("1")
 
-                await expect(AgricultureDeploy.connect(user1).earningsDepositTeam(0, amount
+                await expect(AgricultureDeploy.connect(user1).earningsDepositFarmer(0, amount
                     )).to.be.revertedWith("The addres is not a farmer") 
 
             })
@@ -110,7 +110,7 @@ describe ("Test smart contract Agriculture.sol", function() {
                 
                 const amount : BigNumber = ethers.utils.parseEther("1")
 
-                await expect(AgricultureDeploy.connect(user1).earningsDepositTeam(5, amount
+                await expect(AgricultureDeploy.connect(user1).earningsDepositFarmer(5, amount
                     )).to.be.revertedWith("The harvest does not exists")  
             })
 
@@ -145,7 +145,7 @@ describe ("Test smart contract Agriculture.sol", function() {
                 )   
      
                   
-                await expect(AgricultureDeploy.connect(user1).earningsDepositTeam(lastIdHarvest, amount
+                await expect(AgricultureDeploy.connect(user1).earningsDepositFarmer(lastIdHarvest, amount
                 )).to.be.revertedWith("The state from harvest is not FINALIZED")    
                 
                 
@@ -153,7 +153,7 @@ describe ("Test smart contract Agriculture.sol", function() {
 
 
             it("verify that you have the necessary funds", async () =>{
-                const {owner, user1, owenrERC20 ,AgricultureDeploy, ERC20Deploy} = await AgricultureData()
+                const {owner, user1 ,AgricultureDeploy} = await AgricultureData()
     
                 //agregar agricultor
                 await AgricultureDeploy.connect(owner).addUserFarmer(user1.address)
