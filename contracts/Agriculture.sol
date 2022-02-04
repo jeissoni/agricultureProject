@@ -311,7 +311,8 @@ contract Agriculture {
         uint256 _harvesDays,
         bool _renewal,
         uint256 _salePrice,
-        uint256 _priceTree
+        uint256 _priceTree,
+        uint256 _earningsTree
     ) public onlyTeam returns (bool) {
         //inicia desde 1
 
@@ -325,6 +326,7 @@ contract Agriculture {
         IdDetailHarvest[currentIdHarvest].priceTree = _priceTree;
         IdDetailHarvest[currentIdHarvest].state = stateHarvest.CREATED;
         IdDetailHarvest[currentIdHarvest].pause = false;
+        IdDetailHarvest[currentIdHarvest].earningsTree = _earningsTree;
 
         addFamerHarvest(_farmer, currentIdHarvest);
 
