@@ -44,7 +44,7 @@ contract Agriculture {
     }
 
     //idPlantacion => detallePlantacion
-    mapping(uint256 => HarvestStruct) public IdDetailHarvest;
+    mapping(uint256 => HarvestStruct) private IdDetailHarvest;
     //uint256[] public listHarvest;
 
     // agricultor(1) => cultivo(*)
@@ -59,7 +59,7 @@ contract Agriculture {
         address user;
     }
     //idInversion => detalleInversion
-    mapping(uint256 => InvestmentHarvest) private IdInvestment;
+    mapping(uint256 => InvestmentHarvest) public IdInvestment;
     uint256[] private listInvestment;
 
     mapping(address => uint256[]) private UserInvestment;
@@ -68,7 +68,7 @@ contract Agriculture {
         uint256 treeSold;
         uint256 totalAmount;
     }
-    mapping(uint256 => InvestmentTotalHarvest) public HarvestTotalInvestment;
+    mapping(uint256 => InvestmentTotalHarvest) private HarvestTotalInvestment;
 
     mapping(address => bool) public usersTeam;
 
@@ -150,6 +150,41 @@ contract Agriculture {
         returns (uint256)
     {
         //return HarvestTotalInvestment[_idHarvest][msg.sender];
+    }
+
+
+    function getDetailHarvest(uint256 _idHarvest) external view returns (
+        uint256 idHarvest,
+        string memory nameHarves,
+        uint256 treeNumber,
+        uint256 harvestDays,
+        uint256 salePrice
+        //uint256 priceTree,
+        //uint256 earningsTree,
+        //stateHarvest state,
+        //address farmer
+    ) {
+        uint256 _id = IdDetailHarvest[_idHarvest].idHarvest;
+        string memory _nameHarves= IdDetailHarvest[_idHarvest].nameHarves;
+        uint256 _treeNumber = IdDetailHarvest[_idHarvest].treeNumber;
+        uint256 _harvestDays = IdDetailHarvest[_idHarvest].harvestDays;
+        uint256 _salePrice = IdDetailHarvest[_idHarvest].salePrice;
+        //uint256 _priceTree = IdDetailHarvest[_idHarvest].priceTree;
+        //uint256 _earningsTree = IdDetailHarvest[_idHarvest].earningsTree;
+        //stateHarvest _state = IdDetailHarvest[_idHarvest].state;
+        //address _farmer = IdDetailHarvest[_idHarvest].farmer;
+
+        return (
+            _id, 
+            _nameHarves,
+            _treeNumber,
+            _harvestDays,
+            _salePrice
+            //_priceTree,
+            //_earningsTree,
+            //_state,
+            //_farmer
+        );
     }
 
     //Esta una cosecha pausada?
