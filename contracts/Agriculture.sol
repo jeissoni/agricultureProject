@@ -366,25 +366,26 @@ contract Agriculture {
         
         uint256 treeSoldHarvest = HarvestTotalInvestment[_idHarvest].treeSold;
 
-
         uint256 earningsTree = IdDetailHarvest[_idHarvest].earningsTree;
-
 
         uint256 transactionFee = getFeeTransactionFee(
             treeSoldHarvest * earningsTree
         );
 
+
         uint256 totalAmountTransaction = (treeSoldHarvest * earningsTree) +
-            transactionFee;             
-      
+            transactionFee;       
+
         
         require(
             _amount >= totalAmountTransaction,
             "The amount does not equal the promised earnings"
         );
 
-        USD.transferFrom(msg.sender, address(this), totalAmountTransaction);        
 
+        USD.transferFrom(msg.sender, address(this), totalAmountTransaction);     
+
+        IdDetailHarvest[_idHarvest].earningsDepositFarmer = totalAmountTransaction;
 
         totalFee += transactionFee;
   
