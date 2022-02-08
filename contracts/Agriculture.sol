@@ -208,6 +208,10 @@ contract Agriculture {
     //*************************************************************************/
     //                      Funciones de plantaciones
     //*************************************************************************/
+
+    function getTotalFee() external view returns(uint256){
+        return totalFee;
+    }
     function getCurrentIdHarvest() external view returns (uint256) {
         return currentIdHarvest;
     }
