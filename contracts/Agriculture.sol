@@ -152,40 +152,7 @@ contract Agriculture {
         //return HarvestTotalInvestment[_idHarvest][msg.sender];
     }
 
-
-    function getDetailHarvest(uint256 _idHarvest) external view returns (
-        uint256 idHarvest,
-        string memory nameHarves,
-        uint256 treeNumber,
-        uint256 harvestDays,
-        uint256 salePrice
-        //uint256 priceTree,
-        //uint256 earningsTree,
-        //stateHarvest state,
-        //address farmer
-    ) {
-        uint256 _id = IdDetailHarvest[_idHarvest].idHarvest;
-        string memory _nameHarves= IdDetailHarvest[_idHarvest].nameHarves;
-        uint256 _treeNumber = IdDetailHarvest[_idHarvest].treeNumber;
-        uint256 _harvestDays = IdDetailHarvest[_idHarvest].harvestDays;
-        uint256 _salePrice = IdDetailHarvest[_idHarvest].salePrice;
-        //uint256 _priceTree = IdDetailHarvest[_idHarvest].priceTree;
-        //uint256 _earningsTree = IdDetailHarvest[_idHarvest].earningsTree;
-        //stateHarvest _state = IdDetailHarvest[_idHarvest].state;
-        //address _farmer = IdDetailHarvest[_idHarvest].farmer;
-
-        return (
-            _id, 
-            _nameHarves,
-            _treeNumber,
-            _harvestDays,
-            _salePrice
-            //_priceTree,
-            //_earningsTree,
-            //_state,
-            //_farmer
-        );
-    }
+    
 
     //Esta una cosecha pausada?
     function isPaused(uint256 _idHarvest) public view returns (bool) {
