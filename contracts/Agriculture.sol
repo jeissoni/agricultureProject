@@ -756,6 +756,8 @@ contract Agriculture {
     constructor(address usd) {
         usersTeam[msg.sender] = true;
 
+        feeTransaction = 30000000000000000;
+
         USD = IERC20(usd);
 
         increaseIdHarvest();
