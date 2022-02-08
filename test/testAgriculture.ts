@@ -244,7 +244,7 @@ describe ("Test smart contract Agriculture.sol", function() {
                 await AgricultureDeploy.connect(user2).invesmentCreateUserHarvest(
                     lastIdHarvest,
                     1,
-                    amount
+                    amount.mul(2)
                 )         
 
                 await AgricultureDeploy.connect(owner).changeStateHarvestToExecution(lastIdHarvest)          
@@ -288,7 +288,7 @@ describe ("Test smart contract Agriculture.sol", function() {
                 //user1 Farmer
                 await ERC20Deploy.connect(owenrERC20).transfer(
                     user1.address,
-                    amount.mul(5)                
+                    amount.mul(6)                
                 )
                 
                 //user2 Investment
@@ -299,8 +299,9 @@ describe ("Test smart contract Agriculture.sol", function() {
     
                 await ERC20Deploy.connect(user1).approve(
                     AgricultureDeploy.address, 
-                    amount.mul(5)
+                    amount.mul(6)
                 )
+
 
                 await ERC20Deploy.connect(user2).approve(
                     AgricultureDeploy.address, 
@@ -473,7 +474,7 @@ describe ("Test smart contract Agriculture.sol", function() {
             await AgricultureDeploy.connect(user1).invesmentCreateUserHarvest(
                 lastIdHarvest,
                 1,
-                amount
+                amount.mul(2)
             )         
 
             const currentInvestments : BigNumber = await AgricultureDeploy.getCurrentIdInvestment()
@@ -529,13 +530,13 @@ describe ("Test smart contract Agriculture.sol", function() {
             await AgricultureDeploy.connect(user1).invesmentCreateUserHarvest(
                 lastIdHarvest,
                 1,
-                amount
+                amount.mul(2)
             )       
 
             await AgricultureDeploy.connect(user1).invesmentUpdateUserHarvest(
                 lastIdHarvest,
                 1,
-                amount
+                amount.mul(2)
             )       
         
             const currentInvestments : BigNumber = await AgricultureDeploy.getCurrentIdInvestment()
@@ -591,7 +592,7 @@ describe ("Test smart contract Agriculture.sol", function() {
             await AgricultureDeploy.connect(user1).invesmentCreateUserHarvest(
                 lastIdHarvest,
                 1,
-                amount
+                amount.mul(2)
             )         
 
             const currentInvestments : BigNumber = await AgricultureDeploy.getCurrentIdInvestment()
