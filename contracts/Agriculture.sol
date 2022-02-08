@@ -45,7 +45,7 @@ contract Agriculture {
     }
 
     //idPlantacion => detallePlantacion
-    mapping(uint256 => HarvestStruct) private IdDetailHarvest;
+    mapping(uint256 => HarvestStruct) public IdDetailHarvest;
     //uint256[] public listHarvest;
 
     // agricultor(1) => cultivo(*)
@@ -69,7 +69,7 @@ contract Agriculture {
         uint256 treeSold;
         uint256 totalAmount;
     }
-    mapping(uint256 => InvestmentTotalHarvest) private HarvestTotalInvestment;
+    mapping(uint256 => InvestmentTotalHarvest) public HarvestTotalInvestment;
 
     mapping(address => bool) public usersTeam;
 
