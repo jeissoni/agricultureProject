@@ -232,12 +232,12 @@ describe ("Test smart contract Agriculture.sol", function() {
     
                 await ERC20Deploy.connect(user1).approve(
                     AgricultureDeploy.address, 
-                    amount
+                    amount.mul(2)
                 )
 
                 await ERC20Deploy.connect(user2).approve(
                     AgricultureDeploy.address, 
-                    amount
+                    amount.mul(2)
                 )
 
                 //inversion usuario
@@ -272,15 +272,13 @@ describe ("Test smart contract Agriculture.sol", function() {
                     false, //rebewal
                     10, //salePrice 
                     amount, //priceTree
-                    amount.mul(5)
+                    amount.mul(5) //gagancias por arbol
                 ) 
     
                 const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
     
                 const lastIdHarvest : BigNumber = currrentIdHarvest.sub(1)    
     
-                 //tranferir saldo de USD a user1
-             
                 await AgricultureDeploy.connect(owner).changeStateHarvestToAnalysis(lastIdHarvest)            
                 await AgricultureDeploy.connect(owner).changeStateHarvestToValidated(lastIdHarvest)
                 await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(lastIdHarvest)  
@@ -483,7 +481,7 @@ describe ("Test smart contract Agriculture.sol", function() {
 
             await ERC20Deploy.connect(user1).approve(
                 AgricultureDeploy.address, 
-                amount
+                amount.mul(2)
             )
             
             await AgricultureDeploy.connect(user1).invesmentCreateUserHarvest(
@@ -601,7 +599,7 @@ describe ("Test smart contract Agriculture.sol", function() {
 
             await ERC20Deploy.connect(user1).approve(
                 AgricultureDeploy.address, 
-                amount
+                amount.mul(2)
             )
             
             await AgricultureDeploy.connect(user1).invesmentCreateUserHarvest(
