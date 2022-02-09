@@ -110,6 +110,20 @@ contract Agriculture {
 
     event SetFeeTransaction(address team, uint256 fee, uint256 date);
 
+    event EarningsDepositFarmer(
+        uint256 idHarvest,
+        uint256 amount,
+        uint256 date, 
+        address Farmer
+    );
+
+    event WithdrawalEarningFarmer(
+        uint256 idHarvest,
+        uint256 amount,
+        uint256 date, 
+        address Farmer
+    );
+
     //-----------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------
 
