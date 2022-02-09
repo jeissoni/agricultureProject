@@ -262,8 +262,10 @@ describe ("Test smart contract Agriculture.sol", function() {
                 const amount : BigNumber = ethers.utils.parseEther("1")
 
                 //agregar agricultor
+                //user1 agricultor
                 await AgricultureDeploy.connect(owner).addUserFarmer(user1.address)
-                 //crear la cosecha de prueba
+                
+                //crear la cosecha de prueba
                 await AgricultureDeploy.connect(owner).crearteNewHarvest(
                     user1.address, //farmer
                     "Prueba", // nameHArvest
