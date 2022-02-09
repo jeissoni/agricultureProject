@@ -219,6 +219,145 @@ contract Agriculture {
         return true;
     }
 
+
+
+    //************************************************************************************/
+    //                             Funciones de cambio de estado
+    //************************************************************************************/
+    function changeStateHarvestToAnalysis(uint256 _idHarvest)
+        external
+        onlyTeam
+        returns (bool)
+    {
+        require(isPaused(_idHarvest) == false, "The harvest is Pause");
+
+        require(
+            IdDetailHarvest[_idHarvest].state == stateHarvest.CREATED,
+            "The state from harvest is not CREATED"
+        );
+
+        IdDetailHarvest[_idHarvest].state = stateHarvest.ANALYSIS;
+
+        emit ChangeStateHarvest(
+            msg.sender,
+            _idHarvest,
+            stateHarvest.ANALYSIS,
+            block.timestamp
+        );
+        return true;
+    }
+
+    function changeStateHarvestToValidated(uint256 _idHarvest)
+        external
+        onlyTeam
+        returns (bool)
+    {
+        require(isPaused(_idHarvest) == false, "The harvest is Pause");
+
+        require(
+            IdDetailHarvest[_idHarvest].state == stateHarvest.ANALYSIS,
+            "The state from harvest is not ANALYSIS"
+        );
+        IdDetailHarvest[_idHarvest].state = stateHarvest.VALIDATED;
+
+        emit ChangeStateHarvest(
+            msg.sender,
+            _idHarvest,
+            stateHarvest.VALIDATED,
+            block.timestamp
+        );
+        return true;
+    }
+
+    function changeStateHarvestToReceiveFunds(uint256 _idHarvest)
+        external
+        onlyTeam
+        returns (bool)
+    {
+        require(isPaused(_idHarvest) == false, "The harvest is Pause");
+
+        require(
+            IdDetailHarvest[_idHarvest].state == stateHarvest.VALIDATED,
+            "The state from harvest is not VALIDATED"
+        );
+
+        IdDetailHarvest[_idHarvest].state = stateHarvest.RECEIVE_FUNDS;
+
+        emit ChangeStateHarvest(
+            msg.sender,
+            _idHarvest,
+            stateHarvest.RECEIVE_FUNDS,
+            block.timestamp
+        );
+        return true;
+    }
+
+    function changeStateHarvestToExecution(uint256 _idHarvest)
+        external
+        onlyTeam
+        returns (bool)
+    {
+        require(isPaused(_idHarvest) == false, "The harvest is Pause");
+
+        require(
+            IdDetailHarvest[_idHarvest].state == stateHarvest.RECEIVE_FUNDS,
+            "The state from harvest is not RECEIVE_FUNDS"
+        );
+        IdDetailHarvest[_idHarvest].state = stateHarvest.EXECUTION;
+        emit ChangeStateHarvest(
+            msg.sender,
+            _idHarvest,
+            stateHarvest.EXECUTION,
+            block.timestamp
+        );
+        return true;
+    }
+
+    function changeStateHarvestToFinalized(uint256 _idHarvest)
+        public
+        onlyTeam
+        returns (bool)
+    {
+        require(isPaused(_idHarvest) == false, "The harvest is Pause");
+
+        require(
+            IdDetailHarvest[_idHarvest].state == stateHarvest.EXECUTION,
+            "The state from harvest is not EXECUTION"
+        );
+        IdDetailHarvest[_idHarvest].state = stateHarvest.FINALIZED;
+        emit ChangeStateHarvest(
+            msg.sender,
+            _idHarvest,
+            stateHarvest.FINALIZED,
+            block.timestamp
+        );
+        return true;
+    }
+
+    //cambiar la visibilidad ??
+    function pauseHarvest(uint256 _idHarvest) external onlyTeam returns (bool) {
+        require(isPaused(_idHarvest) == false, "The harvest is Pause");
+        IdDetailHarvest[_idHarvest].pause = true;
+
+        emit Pause(msg.sender, _idHarvest, true, block.timestamp);
+        return true;
+    }
+
+    function unPauseHArvest(uint256 _idHarvest)
+        private
+        onlyTeam
+        returns (bool)
+    {
+        require(isPaused(_idHarvest) == true, "The harvest is not unPause");
+        IdDetailHarvest[currentIdHarvest].pause = false;
+        emit Unpause(msg.sender, _idHarvest, true, block.timestamp);
+        return true;
+    }
+
+    //--------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------
+
+
     //*************************************************************************/
     //                      Funciones de plantaciones
     //*************************************************************************/
@@ -402,6 +541,13 @@ contract Agriculture {
         IdDetailHarvest[_idHarvest].earningsDepositFarmer = totalAmountTransaction;
 
         totalFee += transactionFee;
+
+        emit EarningsDepositFarmer(
+            _idHarvest,
+            _amount,
+            block.timestamp, 
+            address(this)
+        );
   
         return true;
     }
@@ -409,142 +555,7 @@ contract Agriculture {
     //************************************************************************************/
     //************************************************************************************/
 
-    //************************************************************************************/
-    //                             Funciones de cambio de estado
-    //************************************************************************************/
-    function changeStateHarvestToAnalysis(uint256 _idHarvest)
-        external
-        onlyTeam
-        returns (bool)
-    {
-        require(isPaused(_idHarvest) == false, "The harvest is Pause");
-
-        require(
-            IdDetailHarvest[_idHarvest].state == stateHarvest.CREATED,
-            "The state from harvest is not CREATED"
-        );
-
-        IdDetailHarvest[_idHarvest].state = stateHarvest.ANALYSIS;
-
-        emit ChangeStateHarvest(
-            msg.sender,
-            _idHarvest,
-            stateHarvest.ANALYSIS,
-            block.timestamp
-        );
-        return true;
-    }
-
-    function changeStateHarvestToValidated(uint256 _idHarvest)
-        external
-        onlyTeam
-        returns (bool)
-    {
-        require(isPaused(_idHarvest) == false, "The harvest is Pause");
-
-        require(
-            IdDetailHarvest[_idHarvest].state == stateHarvest.ANALYSIS,
-            "The state from harvest is not ANALYSIS"
-        );
-        IdDetailHarvest[_idHarvest].state = stateHarvest.VALIDATED;
-
-        emit ChangeStateHarvest(
-            msg.sender,
-            _idHarvest,
-            stateHarvest.VALIDATED,
-            block.timestamp
-        );
-        return true;
-    }
-
-    function changeStateHarvestToReceiveFunds(uint256 _idHarvest)
-        external
-        onlyTeam
-        returns (bool)
-    {
-        require(isPaused(_idHarvest) == false, "The harvest is Pause");
-
-        require(
-            IdDetailHarvest[_idHarvest].state == stateHarvest.VALIDATED,
-            "The state from harvest is not VALIDATED"
-        );
-
-        IdDetailHarvest[_idHarvest].state = stateHarvest.RECEIVE_FUNDS;
-
-        emit ChangeStateHarvest(
-            msg.sender,
-            _idHarvest,
-            stateHarvest.RECEIVE_FUNDS,
-            block.timestamp
-        );
-        return true;
-    }
-
-    function changeStateHarvestToExecution(uint256 _idHarvest)
-        external
-        onlyTeam
-        returns (bool)
-    {
-        require(isPaused(_idHarvest) == false, "The harvest is Pause");
-
-        require(
-            IdDetailHarvest[_idHarvest].state == stateHarvest.RECEIVE_FUNDS,
-            "The state from harvest is not RECEIVE_FUNDS"
-        );
-        IdDetailHarvest[_idHarvest].state = stateHarvest.EXECUTION;
-        emit ChangeStateHarvest(
-            msg.sender,
-            _idHarvest,
-            stateHarvest.EXECUTION,
-            block.timestamp
-        );
-        return true;
-    }
-
-    function changeStateHarvestToFinalized(uint256 _idHarvest)
-        external
-        onlyTeam
-        returns (bool)
-    {
-        require(isPaused(_idHarvest) == false, "The harvest is Pause");
-
-        require(
-            IdDetailHarvest[_idHarvest].state == stateHarvest.EXECUTION,
-            "The state from harvest is not EXECUTION"
-        );
-        IdDetailHarvest[_idHarvest].state = stateHarvest.FINALIZED;
-        emit ChangeStateHarvest(
-            msg.sender,
-            _idHarvest,
-            stateHarvest.FINALIZED,
-            block.timestamp
-        );
-        return true;
-    }
-
-    //cambiar la visibilidad ??
-    function pauseHarvest(uint256 _idHarvest) external onlyTeam returns (bool) {
-        require(isPaused(_idHarvest) == false, "The harvest is Pause");
-        IdDetailHarvest[_idHarvest].pause = true;
-
-        emit Pause(msg.sender, _idHarvest, true, block.timestamp);
-        return true;
-    }
-
-    function unPauseHArvest(uint256 _idHarvest)
-        private
-        onlyTeam
-        returns (bool)
-    {
-        require(isPaused(_idHarvest) == true, "The harvest is not unPause");
-        IdDetailHarvest[currentIdHarvest].pause = false;
-        emit Unpause(msg.sender, _idHarvest, true, block.timestamp);
-        return true;
-    }
-
-    //--------------------------------------------------------------------------------------
-    //--------------------------------------------------------------------------------------
-
+    
     //******************************************************************************* */
     //                          Funicones Inversiones
     //******************************************************************************* */
