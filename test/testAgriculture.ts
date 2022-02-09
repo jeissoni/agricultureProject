@@ -290,37 +290,52 @@ describe ("Test smart contract Agriculture.sol", function() {
                     user1.address,
                     amount.mul(6)                
                 )
-                
+                             
+    
+                await ERC20Deploy.connect(user1).approve(
+                    AgricultureDeploy.address, 
+                    amount.mul(6) //ganancias + fee
+                )
+
+
                 //user2 Investment
                 await ERC20Deploy.connect(owenrERC20).transfer(
                     user2.address,
                     amount.mul(2)                
                 )
-    
-                await ERC20Deploy.connect(user1).approve(
-                    AgricultureDeploy.address, 
-                    amount.mul(6)
-                )
 
-
+                //inversion usuario
                 await ERC20Deploy.connect(user2).approve(
                     AgricultureDeploy.address, 
-                    amount
+                    amount.mul(2)
                 )
-
                 //inversion usuario
                 await AgricultureDeploy.connect(user2).invesmentCreateUserHarvest(
                     lastIdHarvest,
                     1,
-                    amount
+                    amount.mul(2)
                 )         
-
+                                  
                 await AgricultureDeploy.connect(owner).changeStateHarvestToExecution(lastIdHarvest)          
+                
                 await AgricultureDeploy.connect(owner).changeStateHarvestToFinalized(lastIdHarvest)          
 
                 //deposito de ganancias 
-                await AgricultureDeploy.connect(user1).earningsDepositFarmer(lastIdHarvest, amount.mul(5))
-               
+                await AgricultureDeploy.connect(user1).earningsDepositFarmer(lastIdHarvest, amount.mul(6))
+
+                const treeSoldHarvest  = await AgricultureDeploy.IdDetailHarvest(lastIdHarvest)
+
+                const totalInvestment =  await AgricultureDeploy.HarvestTotalInvestment(lastIdHarvest)
+
+                const expectedEarnings : BigNumber = treeSoldHarvest.earningsTree.mul(totalInvestment.treeSold)
+
+                const balanceContract : BigNumber = await ERC20Deploy.balanceOf(AgricultureDeploy.address)
+
+                const fee : BigNumber = await AgricultureDeploy.getTotalFee()
+                              
+                expect(expectedEarnings).to.equal(balanceContract.sub(amount).sub(fee))
+
+
             })
 
         })
