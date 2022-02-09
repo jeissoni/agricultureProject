@@ -497,8 +497,48 @@ contract Agriculture {
         return true;
     }
 
+
+    function withdrawalEarningFarmer(uint256 _idHarvest)
+        external
+        returns(bool)
+    {
+
+        require(userFarmer[msg.sender] == true, "The addres is not a farmer");
+
+        uint256 idHarvest = getIdHarvestFarmer(_idHarvest, msg.sender);
+
+        require(idHarvest > 0, "The harvest does not exists");
+
+        require(
+            IdDetailHarvest[_idHarvest].state == stateHarvest.EXECUTION,
+            "The state from harvest is not EXECUTION"
+        );
+
+        uint256 totalAmount = HarvestTotalInvestment[_idHarvest].totalAmount;
+
+        console.log(totalAmount);
+
+        HarvestTotalInvestment[_idHarvest].totalAmount = 0;
+
+        //changeStateHarvestToFinalized(_idHarvest);
+
+        USD.approve(address(this), totalAmount);
+
+        USD.transferFrom(address(this), msg.sender, totalAmount); 
+
+        emit WithdrawalEarningFarmer(
+            _idHarvest,
+            totalAmount,
+            block.timestamp, 
+            address(this)
+        );
+
+        return true ;              
+
+    }
+
     function earningsDepositFarmer(uint256 _idHarvest, uint256 _amount)
-        public
+        external
         returns (bool)
     {
         require(userFarmer[msg.sender] == true, "The addres is not a farmer");
