@@ -552,7 +552,7 @@ contract Agriculture {
             "The state from harvest is not FINALIZED"
         );
 
-         require(
+        require(
             USD.balanceOf(msg.sender) >= _amount,
             "Do not have the necessary funds of USD"
         );  
@@ -706,7 +706,7 @@ contract Agriculture {
             "Is not sending the value to execute the transaction"
         );
 
-        USD.transferFrom(msg.sender, address(this), valueOfTrees);
+        USD.transferFrom(msg.sender, address(this), valueOfTrees + fee);
 
         totalFee += fee;
 
@@ -723,8 +723,8 @@ contract Agriculture {
 
         //Actualizacion registro plantacion -- funcion ?
         IdDetailHarvest[_idHarvest].investmentHarvest[
-            currentIdInvestment
-        ] = _idHarvest;
+            currentIdInvestment] = _idHarvest;
+        
         IdDetailHarvest[_idHarvest].listInvestment.push(currentIdInvestment);
 
         bool isIncrease = IncreaseHarvestTotalInvestment(
