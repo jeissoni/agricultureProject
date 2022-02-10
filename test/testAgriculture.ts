@@ -147,12 +147,21 @@ describe ("Test smart contract Agriculture.sol", function() {
                     1,
                     amount.mul(2)
                 )         
-                                  
+                               
+                const totalAmount = await AgricultureDeploy.HarvestTotalInvestment(lastIdHarvest)
+
+                const balanceBefore : BigNumber = await ERC20Deploy.balanceOf(user1.address)
+
                 await AgricultureDeploy.connect(owner).changeStateHarvestToExecution(lastIdHarvest)          
                 
                 await AgricultureDeploy.connect(user1).withdrawalEarningFarmer(lastIdHarvest)
 
-                
+                const balanceAfter : BigNumber = await ERC20Deploy.balanceOf(user1.address)
+
+                expect(balanceAfter).to.equal(balanceBefore.add(totalAmount.totalAmount))
+
+                // console.log(balanceBefore)
+                // console.log(balance)
         })
 
         describe("The team deposits earnings", function () {
