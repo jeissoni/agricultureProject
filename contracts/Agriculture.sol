@@ -813,6 +813,56 @@ contract Agriculture {
         return true;
     }
 
+    function investorProfitWithdrawal(uint256 _idHarvest) 
+    public 
+    returns (bool)
+    {
+
+        uint256 idInvestmentHarvestUser = getIdInvestmentHarvestUser(_idHarvest, msg.sender);
+
+        require(idInvestmentHarvestUser > 0, "There is no investment in this Harvest");
+
+        require(
+            IdDetailHarvest[_idHarvest].idHarvest == _idHarvest,
+            "The Harvest no exists"
+        );
+
+        require(_idHarvest > 0, "The Harvest not exists");
+
+        require(isPaused(_idHarvest) == false, "The harvest is Pause");
+
+        require(
+            IdDetailHarvest[_idHarvest].state == stateHarvest.FINALIZED,
+            "The state from harvest is not FINALIZED"
+        );
+
+
+        uint256 treesPurchased = IdInvestment[idInvestmentHarvestUser].treeNumber;
+
+        uint256 earningsTree = IdDetailHarvest[_idHarvest].earningsTree;
+
+        uint256 totalEarnings = treesPurchased * earningsTree;
+
+        IdInvestment[idInvestmentHarvestUser].valueInvestment = 0;
+
+        USD.approve(address(this), totalEarnings);
+
+        USD.transferFrom(address(this), msg.sender, totalEarnings); 
+
+        emit InvestorProfitWithdrawal(
+            _idHarvest,
+            idInvestmentHarvestUser,
+            msg.sender,
+            totalEarnings,
+            block.timestamp
+        );
+
+
+
+    }
+
+
+
     //-------------------------------------------------------------------------------- */
     //-------------------------------------------------------------------------------- */
 
