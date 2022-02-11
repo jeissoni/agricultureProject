@@ -61,6 +61,7 @@ contract Agriculture {
     }
     //idInversion => detalleInversion
     mapping(uint256 => InvestmentHarvest) public IdInvestment;
+
     uint256[] private listInvestment;
 
     mapping(address => uint256[]) private UserInvestment;
@@ -69,6 +70,7 @@ contract Agriculture {
         uint256 treeSold;
         uint256 totalAmount;
     }
+
     mapping(uint256 => InvestmentTotalHarvest) public HarvestTotalInvestment;
 
     mapping(address => bool) public usersTeam;
@@ -122,6 +124,14 @@ contract Agriculture {
         uint256 amount,
         uint256 date, 
         address Farmer
+    );
+
+    event InvestorProfitWithdrawal(
+        uint256 idHarvest,
+        uint256 idInvestment,
+        address user,
+        uint256 amount,
+        uint256 date
     );
 
     //-----------------------------------------------------------------------------------
@@ -410,8 +420,6 @@ contract Agriculture {
         view
         returns (uint256)
     {
-       
-
         uint256 harvestReturn = 0;
         if (FamerHarvest[_user].length > 0) {
             for (uint256 i = 0; i < FamerHarvest[_user].length; i++) {
@@ -515,8 +523,6 @@ contract Agriculture {
         );
 
         uint256 totalAmount = HarvestTotalInvestment[_idHarvest].totalAmount;
-
-        console.log(totalAmount);
 
         HarvestTotalInvestment[_idHarvest].totalAmount = 0;
 
