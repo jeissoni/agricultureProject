@@ -695,6 +695,99 @@ describe ("Test smart contract Agriculture.sol", function() {
         })
 
 
+        it ("Investor Profit Withdrawal",async () => {
+
+            const {owner, owenrERC20, user1, user2, AgricultureDeploy, ERC20Deploy} = await AgricultureData()
+    
+            const amount : BigNumber = ethers.utils.parseEther("1")
+
+            //agregar agricultor
+            //user1 agricultor
+            await AgricultureDeploy.connect(owner).addUserFarmer(user1.address)
+            
+            //crear la cosecha de prueba
+            await AgricultureDeploy.connect(owner).crearteNewHarvest(
+                user1.address, //farmer
+                "Prueba", // nameHArvest
+                10, //treeNumber
+                10, //harvestDay
+                false, //rebewal
+                10, //salePrice 
+                amount, //priceTree
+                amount.mul(5) //gagancias por arbol
+            ) 
+
+            const currrentIdHarvest : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdHarvest()
+
+            const lastIdHarvest : BigNumber = currrentIdHarvest.sub(1)    
+
+            await AgricultureDeploy.connect(owner).changeStateHarvestToAnalysis(lastIdHarvest)            
+            await AgricultureDeploy.connect(owner).changeStateHarvestToValidated(lastIdHarvest)
+            await AgricultureDeploy.connect(owner).changeStateHarvestToReceiveFunds(lastIdHarvest)  
+            
+            //user1 Farmer
+            await ERC20Deploy.connect(owenrERC20).transfer(
+                user1.address,
+                amount.mul(6)                
+            )
+                         
+
+            await ERC20Deploy.connect(user1).approve(
+                AgricultureDeploy.address, 
+                amount.mul(6) //ganancias + fee
+            )
+
+
+            //user2 Investment
+            await ERC20Deploy.connect(owenrERC20).transfer(
+                user2.address,
+                amount.mul(2)                
+            )
+
+            //inversion usuario
+            await ERC20Deploy.connect(user2).approve(
+                AgricultureDeploy.address, 
+                amount.mul(2)
+            )
+            //inversion usuario
+            await AgricultureDeploy.connect(user2).invesmentCreateUserHarvest(
+                lastIdHarvest,
+                1,
+                amount.mul(2)
+            )         
+
+            const currrentIdInvesment : BigNumber = await AgricultureDeploy.connect(owner).getCurrentIdInvestment()
+
+            const lastIdInvesment : BigNumber = currrentIdInvesment.sub(1)
+
+            await AgricultureDeploy.connect(owner).changeStateHarvestToExecution(lastIdHarvest)          
+                
+            await AgricultureDeploy.connect(owner).changeStateHarvestToFinalized(lastIdHarvest)          
+            
+            //deposito de ganancias agricultores 
+            await AgricultureDeploy.connect(user1).earningsDepositFarmer(lastIdHarvest, amount.mul(6))
+
+            const balanceAfter : BigNumber = await ERC20Deploy.balanceOf(user2.address)
+
+            const investment = await AgricultureDeploy.IdInvestment(lastIdInvesment)
+
+            const treeNumber : BigNumber = await investment.treeNumber
+
+            const harvest = await AgricultureDeploy.IdDetailHarvest(lastIdHarvest)
+
+            const valueEarning : BigNumber  = harvest.earningsTree.mul(treeNumber)
+
+            await AgricultureDeploy.connect(user2).investorProfitWithdrawal(lastIdHarvest)
+
+            const balanceBefore : BigNumber = await ERC20Deploy.balanceOf(user2.address)
+
+
+            expect(balanceBefore).to.equal(balanceAfter.add(valueEarning))
+
+
+        })
+
+
         
     })
 
