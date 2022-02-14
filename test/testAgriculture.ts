@@ -159,9 +159,7 @@ describe ("Test smart contract Agriculture.sol", function() {
                 const balanceAfter : BigNumber = await ERC20Deploy.balanceOf(user1.address)
 
                 expect(balanceAfter).to.equal(balanceBefore.add(totalAmount.totalAmount))
-
-                // console.log(balanceBefore)
-                // console.log(balance)
+ 
         })
 
         describe("The team deposits earnings", function () {
